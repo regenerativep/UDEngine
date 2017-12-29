@@ -5,26 +5,4 @@ D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine
 D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\OpenTK.dll
 D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.exe
 D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.pdb
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.exe.config
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.exe
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.pdb
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\MonoGame.Framework.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.XAudio2.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.DXGI.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.Direct3D11.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.Direct2D1.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.XInput.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.MediaFoundation.dll
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\MonoGame.Framework.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.XAudio2.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.DXGI.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.Direct3D11.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.Direct2D1.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.XInput.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\SharpDX.MediaFoundation.xml
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.csprojResolveAssemblyReference.cache
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.csproj.CoreCompileInputs.cache
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.exe
-C:\Users\fdela\Documents\GitHub\UDEngine\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.pdb
+D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.exe.config

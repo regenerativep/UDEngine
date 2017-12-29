@@ -242,8 +242,8 @@ namespace UnlimitedDetailEngine2D
                 {
                     Contents.Add(item);
                 }
-                updateColor();
                 ShouldSplit();
+                updateColor();
             }
             else
             {
@@ -281,7 +281,8 @@ namespace UnlimitedDetailEngine2D
             Children[2] = new Quadtree(X, midHeight, midWidth, Height, this);
             Children[3] = new Quadtree(midWidth, midHeight, Width, Height, this);
             AddToContent(Contents);
-            Contents = new List<Atom>();
+            //Contents = new List<Atom>();
+            Contents = null;
         }
         private int inWhichChild(double x, double y)
         {

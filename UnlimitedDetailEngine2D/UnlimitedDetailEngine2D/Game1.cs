@@ -38,8 +38,10 @@ namespace UnlimitedDetailEngine2D
             List<Atom> atoms = new List<Atom>();
             for(int i = 0; i < 64; i++)
             {
-                int x = (int)Math.Sqrt(rand.Next(511 * 511)),
-                    y = (int)Math.Sqrt(rand.Next(511 * 511)),
+                int /*x = (int)Math.Sqrt(rand.Next(511 * 511)),
+                    y = (int)Math.Sqrt(rand.Next(511 * 511))*/
+                    x = rand.Next(512),
+                    y = rand.Next(512),
                     r = rand.Next(255),
                     b = rand.Next(255),
                     g = rand.Next(255);
@@ -89,28 +91,28 @@ namespace UnlimitedDetailEngine2D
 
             Vector2 movement = new Vector2(0, 0);
             int spd = 4;
-            if (keyState.IsKeyDown(Keys.Down))
+            if (keyState.IsKeyDown(Keys.S))
             {
                 movement += Camera.LengthDir(spd, cam.Direction + 180);
             }
-            if (keyState.IsKeyDown(Keys.Up))
+            if (keyState.IsKeyDown(Keys.W))
             {
                 movement += Camera.LengthDir(spd, cam.Direction);
             }
-            if (keyState.IsKeyDown(Keys.Left))
+            if (keyState.IsKeyDown(Keys.A))
             {
                 movement += Camera.LengthDir(spd, cam.Direction - 90);
             }
-            if (keyState.IsKeyDown(Keys.Right))
+            if (keyState.IsKeyDown(Keys.D))
             {
                 movement += Camera.LengthDir(spd, cam.Direction + 90);
             }
             cam.Position += movement;
-            if (keyState.IsKeyDown(Keys.A))
+            if (keyState.IsKeyDown(Keys.Left))
             {
                 cam.Direction -= 4;
             }
-            if (keyState.IsKeyDown(Keys.D))
+            if (keyState.IsKeyDown(Keys.Right))
             {
                 cam.Direction += 4;
             }
