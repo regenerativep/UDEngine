@@ -31,10 +31,12 @@ namespace UnlimitedDetailEngine
         /// </summary>
         protected override void Initialize()
         {
+            TargetElapsedTime = TimeSpan.FromTicks(166666);
+            GraphicsDevice.PresentationParameters.PresentationInterval = PresentInterval.Two;
             tree = new UDTree(0, 0, 0, 512, 512, 512);
             Random rand = new Random();
             List<UDAtom> atoms = new List<UDAtom>();
-            for(int i = 0; i < 256; i++)
+            for(int i = 0; i < 5; i++)
             {
                 int x = rand.Next(512),
                     y = rand.Next(512),
@@ -45,7 +47,7 @@ namespace UnlimitedDetailEngine
                 atoms.Add(new UDAtom(x, y, z, r, g, b));
             }
             tree.AddToContent(atoms);
-            cam = new UDCamera(this, tree, new Vector3(-64, 256, 256), new Vector2(0, 0), new Vector2(90, 90), Color.White);
+            cam = new UDCamera(this, tree, new Vector3(-64, 256, 256), new Vector2(0, 0), new Vector2(60, 60), Color.White);
             base.Initialize();
         }
 
@@ -106,16 +108,24 @@ namespace UnlimitedDetailEngine
             cam.Position.Y += movement.Y;
             if (keyState.IsKeyDown(Keys.Left))
             {
-                cam.Direction.X -= 0.1f;
+                cam.Direction.X -= 0.5f;
             }
             if (keyState.IsKeyDown(Keys.Right))
             {
-                cam.Direction.X += 0.1f;
+                cam.Direction.X += 0.5f;
+            }
+            if (keyState.IsKeyDown(Keys.Up))
+            {
+                cam.Direction.Y -= 0.5f;
+            }
+            if (keyState.IsKeyDown(Keys.Down))
+            {
+                cam.Direction.Y += 0.5f;
             }
 
-            if(keyState.IsKeyDown(Keys.Space) && !lastKeyState.IsKeyDown(Keys.Space))
+            if (keyState.IsKeyDown(Keys.Space) && !lastKeyState.IsKeyDown(Keys.Space))
             {
-                cam.DrawView(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                //
             }
 
             lastKeyState = keyState;
@@ -129,9 +139,10 @@ namespace UnlimitedDetailEngine
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            
+            cam.DrawView(this, 64, 64);
+
             spriteBatch.Begin();
-            spriteBatch.Draw(cam.Pixels, new Vector2(0, 0), Color.White);
+            spriteBatch.Draw(cam.Pixels, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

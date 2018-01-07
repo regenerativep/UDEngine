@@ -63,7 +63,7 @@ namespace UnlimitedDetailEngine
                 }
             }
         }
-        public void DrawView(int width, int height)
+        public void DrawView(Game g, int width, int height)
         {
             Color[] pixels = new Color[width * height];
             for(int i = 0; i < width; i++)
@@ -89,7 +89,7 @@ namespace UnlimitedDetailEngine
             }
             if(Pixels.Width != width || Pixels.Height != height)
             {
-                Pixels = new Texture2D(game.GraphicsDevice, width, height);
+                Pixels = new Texture2D(g.GraphicsDevice, width, height);
             }
             Pixels.SetData(pixels);
         }

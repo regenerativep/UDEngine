@@ -225,13 +225,14 @@ namespace UnlimitedDetailEngine
         public UDTree CheckCollision(UDRaycast ray, out float dist)
         {
             dist = 0;
-            Vector3 a, b;
-            bool inThis = UDMath.LineIntersectsCube(
+            Vector3 pos = new Vector3((int)X, (int)Y, (int)Z);
+            Vector3 sze = new Vector3((int)Width, (int)Height, (int)Length);
+            LineIntersectsCubeResult inThis = UDMath.LineIntersectsCube(
                 ray.Position, ray.Position + ray.Direction,
-                new Vector3((int)X, (int)Y, (int)Z), new Vector3((int)Width, (int)Height, (int)Length),
-                out a, out b
+                pos, pos + sze
             );
-            if(!inThis)
+            Vector3 a = inThis.A, b = inThis.B;
+            if (!inThis.Result)
             {
                 return null;
             }
