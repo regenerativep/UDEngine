@@ -1,8 +1,0 @@
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.csprojResolveAssemblyReference.cache
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.exe
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.pdb
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\MonoGame.Framework.dll
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\OpenTK.dll
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.exe
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\obj\x86\Debug\UnlimitedDetailEngine2D.pdb
-D:\Main\General Programming\csharp\UnlimitedDetailEngine2D\UnlimitedDetailEngine2D\bin\WindowsGL\Debug\UnlimitedDetailEngine2D.exe.config
