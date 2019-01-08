@@ -93,7 +93,7 @@
                 eng.setSize(512, 512);
                 for(var i = 0; i < 64; i++)
                 {
-                    var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256), 1);
+                    var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256));
                     var atom = new UDAtom(randInt(0, worldWidth), randInt(0, worldHeight), color);
                     eng.tree.addItem(atom);
                 }

@@ -15,7 +15,7 @@ class UDTree
         };
         this.parent = p;
         this.updateColor = false;
-        this.color = new UDColor(0, 0, 0, 0);
+        this.color = new UDColor(0, 0, 0);
         this.shouldSplit = false;
     }
     addItem(item)
@@ -107,7 +107,6 @@ class UDTree
         {
             var side = inWhichSide(this.position, this.size, from);
             var order = getOrder(side);
-            var intersectedColorList = [];
             for(var i = 0; i < order.length; i++)
             {
                 var child = this.children[order[i]];
@@ -118,25 +117,11 @@ class UDTree
                 if(lineIntersectsRectangle(from, to, child.position, secondPos))
                 {
                     var color = child.fireRayCast(from, to);
-                    intersectedColorList.push(color);
-                    if(color.alpha == 1)
-                    {
-                        break;
-                    }
+                    return color;
                 }
                 
             }
-            if(intersectedColorList.length > 0)
-            {
-                var col = intersectedColorList[0];
-                for(var i = 1; i < intersectedColorList.length; i++)
-                {
-                    col = weightedAverageOfColors([col, intersectedColorList[i]]);
-                }
-                return col; //todo fix this
-                //return weightedAverageOfColors(intersectedColorList);
-            }
-            return new UDColor(0,0,0,0);
+            return new UDColor(0,0,0);
         }
         return this.getColor();
     }
