@@ -1,3 +1,4 @@
+var maxTreeContents = 1;
 class UDTree
 {
     constructor(x, y, w, h, p)
@@ -14,7 +15,8 @@ class UDTree
         };
         this.parent = p;
         this.updateColor = false;
-        this.color = new UDColor(0, 0, 0);
+        this.color = new UDColor(0, 0, 0, 0);
+        this.shouldSplit = false;
     }
     addItem(item)
     {
@@ -22,6 +24,10 @@ class UDTree
         if(this.children == null)
         {
             this.contents.push(item);
+            if(this.contents.length > maxTreeContents)
+            {
+                this.shouldSplit = true;
+            }
         }
         else
         {
@@ -61,6 +67,7 @@ class UDTree
     }
     getColor()
     {
+        if(this.shouldSplit) this.split();
         if(this.updateColor)
         {
             if(this.children != null)
@@ -77,7 +84,7 @@ class UDTree
             {
                 if(this.contents.length == 0)
                 {
-                    this.color = new UDColor(0, 0, 0);
+                    this.color = new UDColor(0, 0, 0, 0);
                 }
                 else
                 {
@@ -100,6 +107,7 @@ class UDTree
         {
             var side = inWhichSide(this.position, this.size, from);
             var order = getOrder(side);
+            var intersectedColorList = [];
             for(var i = 0; i < order.length; i++)
             {
                 var child = this.children[order[i]];
@@ -109,11 +117,26 @@ class UDTree
                 };
                 if(lineIntersectsRectangle(from, to, child.position, secondPos))
                 {
-                    //we collided, stop checking
-                    return child.fireRayCast(from, to);
+                    var color = child.fireRayCast(from, to);
+                    intersectedColorList.push(color);
+                    if(color.alpha == 1)
+                    {
+                        break;
+                    }
                 }
+                
             }
-            return new UDColor(0,0,0);
+            if(intersectedColorList.length > 0)
+            {
+                var col = intersectedColorList[0];
+                for(var i = 1; i < intersectedColorList.length; i++)
+                {
+                    col = weightedAverageOfColors([col, intersectedColorList[i]]);
+                }
+                return col; //todo fix this
+                //return weightedAverageOfColors(intersectedColorList);
+            }
+            return new UDColor(0,0,0,0);
         }
         return this.getColor();
     }

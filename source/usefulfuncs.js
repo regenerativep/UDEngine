@@ -22,29 +22,29 @@ function hslToHex1(h, s, l) {
         fract = h - sextant;
         vsf = v * sv * fract;
         if (sextant === 0 || sextant === 6) {
-        r = v;
-        g = min + vsf;
-        b = min;
+            r = v;
+            g = min + vsf;
+            b = min;
         } else if (sextant === 1) {
-        r = v - vsf;
-        g = v;
-        b = min;
+            r = v - vsf;
+            g = v;
+            b = min;
         } else if (sextant === 2) {
-        r = min;
-        g = v;
-        b = min + vsf;
+            r = min;
+            g = v;
+            b = min + vsf;
         } else if (sextant === 3) {
-        r = min;
-        g = v - vsf;
-        b = v;
+            r = min;
+            g = v - vsf;
+            b = v;
         } else if (sextant === 4) {
-        r = min + vsf;
-        g = min;
-        b = v;
+            r = min + vsf;
+            g = min;
+            b = v;
         } else {
-        r = v;
-        g = min;
-        b = v - vsf;
+            r = v;
+            g = min;
+            b = v - vsf;
         }
         return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
@@ -82,6 +82,34 @@ function hue2rgb(p, q, t) {
     if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
     return p;
 }
+
+ //https://jsperf.com/hsl-to-rgb
+function gg_hsl2rgb(hsl) {
+    var h = hsl[0] / 256, //edited to have / 256
+        s = hsl[1] / 256,
+        l = hsl[2] / 256;
+    var v, min, sv, sextant, fract, vsf;
+   
+    if (l <= 0.5) v = l * (1 + s);
+    else v = l + s - l * s;
+   
+    if (v === 0) return [0, 0, 0];
+    else {
+     min = 2 * l - v;
+     sv = (v - min) / v;
+     h = 6 * h;
+     sextant = Math.floor(h);
+     fract = h - sextant;
+     vsf = v * sv * fract;
+     if (sextant === 0 || sextant === 6) return [v, min + vsf, min];
+     else if (sextant === 1) return [v - vsf, v, min];
+     else if (sextant === 2) return [min, v, min + vsf];
+     else if (sextant === 3) return [min, v - vsf, v];
+     else if (sextant === 4) return [min + vsf, min, v];
+     else return [v, min, v - vsf];
+    }
+   }
+   
 
 //http://jsfiddle.net/justin_c_rounds/Gd2S2/light/
 //find out if two lines intersect, and if they do, where
@@ -143,31 +171,31 @@ function averageOfAngles(angleList)
 function lineIntersectsRectangle(la, lb, ra, rb)
 {
     var lines = [
-        {
+        { //top
             a: ra,
             b: {
                 x: rb.x,
                 y: ra.y
             }
         },
-        {
+        { //bottom
             a: {
                 x: ra.x,
                 y: rb.y
             },
             b: rb
         },
-        {
+        { //left
             a: ra,
             b: {
                 x: ra.x,
                 y: rb.y
             }
         },
-        {
+        { //right
             a: {
-                x: ra.x,
-                y: rb.y
+                x: rb.x,
+                y: ra.y
             },
             b: {
                 x: rb.x,

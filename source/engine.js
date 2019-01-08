@@ -12,6 +12,7 @@ class UDEngine
     }
     update()
     {
+        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");
         var rectlist = [];
         var treeList = this.tree.getAllChildren();
         for(var i = 0; i < treeList.length; i++)
@@ -32,9 +33,14 @@ class UDEngine
         for(var i = 0; i < rectlist.length; i++)
         {
             var r = rectlist[i];
-            rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, ""/*new UDColor(0, 0, 0)*/, r.color);
+            rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
         }
-        this.drawCamera(512, 32, { x: 0, y: 288 });
+        var visualCamRadius = 4, visualCamDirLength = 16;
+        rect(this.ctx, this.camera.position.x - visualCamRadius, this.camera.position.y - visualCamRadius, this.camera.position.x + visualCamRadius, this.camera.position.y + visualCamRadius, "", "#000000");
+        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction) * visualCamDirLength), this.camera.position.y + (Math.sin(this.camera.direction) * visualCamDirLength), "#0000FF");
+        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
+        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
+        this.drawCamera(512, 32, { x: 0, y: 480 });
     }
     drawCamera(width, height, offset)
     {
@@ -59,27 +65,28 @@ class UDEngine
 
 function rect(ctx, x1, y1, x2, y2, outlineColor, fillColor) //todo allow filling?
 {
+    x1 = Math.floor(x1);
+    y1 = Math.floor(y1);
+    x2 = Math.floor(x2);
+    y2 = Math.floor(y2);
     ctx.beginPath();
-    var inCol = getHexColor(fillColor);
-    ctx.fillStyle = inCol;
+    ctx.fillStyle = getUsableColor(fillColor);
     ctx.rect(x1, y1, (x2 - x1), (y2 - y1));
     ctx.fill();
-    /*if(outCol != "")
-    {
-        ctx.beginPath();
-        var outCol = getHexColor(outlineColor);
-        ctx.strokeStyle = outCol;
-        ctx.rect(x1, y1, (x2 - x1), (y2 - y1));
-        ctx.stroke();
-    }*/
 }
 function line(ctx, x1, y1, x2, y2, color)
 {
-    var col = getHexColor(color);
+    var lastStroke = ctx.strokeStyle;
+    x1 = Math.floor(x1);
+    y1 = Math.floor(y1);
+    x2 = Math.floor(x2);
+    y2 = Math.floor(y2);
+    var col = getUsableColor(color);
     ctx.strokeStyle = col;
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
+    ctx.strokeStyle = lastStroke;
 }
 
 function getHexColor(color)
@@ -87,6 +94,14 @@ function getHexColor(color)
     if(color.constructor.name === "UDColor")
     {
         return color.getHex();
+    }
+    return color;
+}
+function getUsableColor(color)
+{
+    if(color.constructor.name === "UDColor")
+    {
+        return color.getHsla();
     }
     return color;
 }
