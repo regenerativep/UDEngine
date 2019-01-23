@@ -14,8 +14,6 @@ class UDTree
             y: y
         };
         this.parent = p;
-        this.updateFilters = false;
-        this.filters = [];
         this.shouldSplit = false;
         if(typeof top === "undefined")
         {
@@ -28,7 +26,6 @@ class UDTree
     }
     addItem(item)
     {
-        this.updateFilters = true;
         if(this.children == null)
         {
             this.contents.push(item);
@@ -73,16 +70,6 @@ class UDTree
             this.addItem(this.contents[i]);
         }
         this.contents = null;
-        
-        for(var i = 0; i < this.children.length; i++)
-        {
-            var child = this.children[i];
-            for(var j = 0; j < this.filters.length; j++)
-            {
-                var filter = this.filters[j];
-                child.addFilter(filter);
-            }
-        }
         this.shouldSplit = false;
     }
     fireRayCast(from, to, exclude)
@@ -91,7 +78,7 @@ class UDTree
         {
             exclude = [];
         }
-        if(this.children != null)
+        if(!this.isLeaf())
         {
             var side = inWhichSide(this.position, this.size, from);
             var order = getOrder(side);
@@ -111,19 +98,24 @@ class UDTree
                 };
                 if(lineIntersectsRectangle(from, to, child.position, secondPos))
                 {
-                    var color = child.fireRayCast(from, to, exclude);
-                    return color;
+                    let atom = child.fireRayCast(from, to, exclude);
+                    if(atom != null)
+                    {
+                        return atom;
+                    }
                 }
                 
             }
-            return new UDColor(0, 0, 0); //todo maybe get a skybox?
         }
-        var color = new UDColor(0, 0, 0);
-        for(var i = 0; i < this.filters.length; i++)
+        if(!this.hasContents())
         {
-            color = this.filters[i].pass(from, to, color, this);
+            return null;
         }
-        return color;
+        return this.contents[0];
+    }
+    hasContents()
+    {
+        return this.contents != null && this.contents.length > 0;
     }
     isLeaf()
     {

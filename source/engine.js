@@ -4,7 +4,7 @@ class UDEngine
     constructor(canvasContainer)
     {
         this.tree = new UDTree(0, 0, defaultSize.x, defaultSize.y);
-        this.tree.filters.push(Filter.AverageColor);
+        //this.tree.filters.push(Filter.AverageColor);
         this.camera = new UDCamera(this.tree);
 
         this.resetColor = "#DDDDDD";
@@ -28,13 +28,16 @@ class UDEngine
                     x: node.size.x,
                     y: node.size.y
                 },
-                color: node.color//node.getColor()
+                color: node.hasContents() ? node.contents[0].getColor() : null
             });
         }
         for(var i = 0; i < rectlist.length; i++)
         {
             var r = rectlist[i];
-            rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
+            if(r.color != null)
+            {
+                rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
+            }
         }
         var visualCamRadius = 4, visualCamDirLength = 16;
         rect(this.ctx, this.camera.position.x - visualCamRadius, this.camera.position.y - visualCamRadius, this.camera.position.x + visualCamRadius, this.camera.position.y + visualCamRadius, "", "#000000");

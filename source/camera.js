@@ -10,6 +10,7 @@ class UDCamera
         this.fov = Math.PI / 2;
         this.tree = tree;
         this.viewDist = 512;
+        this.defaultColor = new UDColor(0, 0, 0);
     }
     getPixelArray(width)
     {
@@ -25,7 +26,16 @@ class UDCamera
                 x: this.position.x + (Math.cos(rayDir) * this.viewDist),
                 y: this.position.y + (Math.sin(rayDir) * this.viewDist)
             };
-            var color = this.tree.fireRayCast(this.position, rayVec);
+            var atom = this.tree.fireRayCast(this.position, rayVec);
+            var color;
+            if(atom == null)
+            {
+                color = this.defaultColor;
+            }
+            else
+            {
+                color = atom.getColor();
+            }
             pixArr.push(color);
         }
         return pixArr;

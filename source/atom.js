@@ -8,4 +8,9 @@ class UDAtom
         };
         this.color = c;
     }
+    getColor()
+    {
+        return this.color;
+        //todo filters
+    }
 }
