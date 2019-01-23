@@ -1,0 +1,6 @@
+[submodule "EventEmitter"]
+	path = EventEmitter
+	url = git://github.com/Olical/EventEmitter.git
+[submodule "Heir"]
+	path = Heir
+	url = git://github.com/Olical/Heir.git

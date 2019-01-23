@@ -1,7 +1,7 @@
 var maxTreeContents = 1;
 class UDTree
 {
-    constructor(x, y, w, h, p)
+    constructor(x, y, w, h, p, top)
     {
         this.children = null;
         this.contents = [];
@@ -14,13 +14,21 @@ class UDTree
             y: y
         };
         this.parent = p;
-        this.updateColor = false;
-        this.color = new UDColor(0, 0, 0);
+        this.updateFilters = false;
+        this.filters = [];
         this.shouldSplit = false;
+        if(typeof top === "undefined")
+        {
+            this.topNode = this;
+        }
+        else
+        {
+            this.topNode = top;
+        }
     }
     addItem(item)
     {
-        this.updateColor = true;
+        this.updateFilters = true;
         if(this.children == null)
         {
             this.contents.push(item);
@@ -34,6 +42,7 @@ class UDTree
             var side = inWhichSide(this.position, this.size, item.position);
             this.children[side].addItem(item);
         }
+        this.constructor._super.emit("atomAdd", item);
     }
     getAllChildren()
     {
@@ -55,54 +64,33 @@ class UDTree
     {
         this.children = [];
         var sx = this.size.x / 2, sy = this.size.y / 2;
-        this.children.push(new UDTree(this.position.x, this.position.y, sx, sy, this));
-        this.children.push(new UDTree(this.position.x + sx, this.position.y, sx, sy, this));
-        this.children.push(new UDTree(this.position.x, this.position.y + sy, sx, sy, this));
-        this.children.push(new UDTree(this.position.x + sx, this.position.y + sy, sx, sy, this));
+        this.children.push(new UDTree(this.position.x, this.position.y, sx, sy, this, this.topNode));
+        this.children.push(new UDTree(this.position.x + sx, this.position.y, sx, sy, this, this.topNode));
+        this.children.push(new UDTree(this.position.x, this.position.y + sy, sx, sy, this, this.topNode));
+        this.children.push(new UDTree(this.position.x + sx, this.position.y + sy, sx, sy, this, this.topNode));
         for(var i = 0; i < this.contents.length; i++)
         {
             this.addItem(this.contents[i]);
         }
         this.contents = null;
-    }
-    getColor()
-    {
-        if(this.shouldSplit) this.split();
-        if(this.updateColor)
+        
+        for(var i = 0; i < this.children.length; i++)
         {
-            if(this.children != null)
+            var child = this.children[i];
+            for(var j = 0; j < this.filters.length; j++)
             {
-                var cols = [];
-                for(var i = 0; i < this.children.length; i++)
-                {
-                    var col = this.children[i].getColor();
-                    cols.push(col);
-                }
-                this.color = averageOfColors(cols);
+                var filter = this.filters[j];
+                child.addFilter(filter);
             }
-            else
-            {
-                if(this.contents.length == 0)
-                {
-                    this.color = new UDColor(0, 0, 0, 0);
-                }
-                else
-                {
-                    var cols = [];
-                    for(var i = 0; i < this.contents.length; i++)
-                    {
-                        var col = this.contents[i].color;
-                        cols.push(col);
-                    }
-                    this.color = averageOfColors(cols);
-                }
-            }
-            this.updateColor = false;
         }
-        return this.color;
+        this.shouldSplit = false;
     }
-    fireRayCast(from, to)
+    fireRayCast(from, to, exclude)
     {
+        if(typeof exclude === "undefined")
+        {
+            exclude = [];
+        }
         if(this.children != null)
         {
             var side = inWhichSide(this.position, this.size, from);
@@ -110,22 +98,50 @@ class UDTree
             for(var i = 0; i < order.length; i++)
             {
                 var child = this.children[order[i]];
+                for(let node in exclude)
+                {
+                    if(child == node)
+                    {
+                        break; //we dont worry about this one
+                    }
+                }
                 var secondPos = {
                     x: child.position.x + child.size.x,
                     y: child.position.y + child.size.y
                 };
                 if(lineIntersectsRectangle(from, to, child.position, secondPos))
                 {
-                    var color = child.fireRayCast(from, to);
+                    var color = child.fireRayCast(from, to, exclude);
                     return color;
                 }
                 
             }
-            return new UDColor(0,0,0);
+            return new UDColor(0, 0, 0); //todo maybe get a skybox?
         }
-        return this.getColor();
+        var color = new UDColor(0, 0, 0);
+        for(var i = 0; i < this.filters.length; i++)
+        {
+            color = this.filters[i].pass(from, to, color, this);
+        }
+        return color;
+    }
+    isLeaf()
+    {
+        if(this.shouldSplit)
+        {
+            this.split();
+            return false;
+        }
+        return this.children == null;
+    }
+    addFilter(filter)
+    {
+        var args = Array.prototype.slice.call(arguments, 1);
+        this.filters.push(filter);
+        filter.create(this, ...args);
     }
 }
+heir.inherit(UDTree, EventEmitter);
 function inWhichSide(pos, size, loc)
 {
     var side = 0;

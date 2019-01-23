@@ -4,6 +4,7 @@ class UDEngine
     constructor(canvasContainer)
     {
         this.tree = new UDTree(0, 0, defaultSize.x, defaultSize.y);
+        this.tree.filters.push(Filter.AverageColor);
         this.camera = new UDCamera(this.tree);
 
         this.resetColor = "#DDDDDD";
@@ -27,7 +28,7 @@ class UDEngine
                     x: node.size.x,
                     y: node.size.y
                 },
-                color: node.getColor()
+                color: node.color//node.getColor()
             });
         }
         for(var i = 0; i < rectlist.length; i++)
@@ -101,7 +102,7 @@ function getUsableColor(color)
 {
     if(color.constructor.name === "UDColor")
     {
-        return color.getHsla();
+        return color.getHsl();
     }
     return color;
 }

@@ -2,9 +2,14 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <script src="./Heir/heir.js"></script>
+        <script src="./EventEmitter/EventEmitter.min.js"></script>
         <script src="./engine.js"></script>
         <script>
             var eng;
+            var rotateSpeed = 0.05, moveSpeed = 4;
+            var fps = 30;
+            var globalSpeed = 60 / fps;
             function randInt(from, to)
             {
                 return Math.floor(Math.random() * (to - from)) + from;
@@ -71,24 +76,24 @@
                     //eng.camera.direction += 0.02;
                     if(keyPresses.left)
                     {
-                        eng.camera.direction -= 0.05;
+                        eng.camera.direction -= rotateSpeed * globalSpeed;
                     }
                     if(keyPresses.right)
                     {
-                        eng.camera.direction += 0.05;
+                        eng.camera.direction += rotateSpeed * globalSpeed;
                     }
                     if(keyPresses.up)
                     {
-                        eng.camera.position.x += Math.cos(eng.camera.direction) * 4;
-                        eng.camera.position.y += Math.sin(eng.camera.direction) * 4;
+                        eng.camera.position.x += Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
+                        eng.camera.position.y += Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
                     }
                     if(keyPresses.down)
                     {
-                        eng.camera.position.x -= Math.cos(eng.camera.direction) * 4;
-                        eng.camera.position.y -= Math.sin(eng.camera.direction) * 4;
+                        eng.camera.position.x -= Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
+                        eng.camera.position.y -= Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
                     }
                     eng.update();
-                }, 33);
+                }, 1000 / fps);
                 var worldWidth = 256, worldHeight = 256;
                 eng.setSize(512, 512);
                 for(var i = 0; i < 64; i++)

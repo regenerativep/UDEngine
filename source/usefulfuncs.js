@@ -167,9 +167,23 @@ function averageOfAngles(angleList)
     var mean = sum / angleList.length;
     return (mean < 0) ? mean + 360 : mean;
 }
-
-function lineIntersectsRectangle(la, lb, ra, rb)
+function pointInRectangle(p, ra, rb)
 {
+    return p.x > ra.x && p.x < rb.x && p.y > ra.y && p.y < rb.y;
+}
+function lineIntersectsRectangle(la, lb, ra, rb, extra)
+{
+    if(typeof extra === "undefined")
+    {
+        extra = false;
+    }
+    if(!extra)
+    {
+        if(pointInRectangle(la, ra, rb) || pointInRectangle(la, ra, rb))
+        {
+            return true;
+        }
+    }
     var lines = [
         { //top
             a: ra,
@@ -203,6 +217,13 @@ function lineIntersectsRectangle(la, lb, ra, rb)
             }
         }
     ];
+    var final = false;
+    var closest = { x: null, y: null, dist: null };
+    var farthest = { x: null, y: null, dist: null };
+    function getDistSqr(a, b)
+    {
+        return Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2);
+    }
     for(var i = 0; i < lines.length; i++)
     {
         var line = lines[i];
@@ -210,10 +231,34 @@ function lineIntersectsRectangle(la, lb, ra, rb)
         if(result.onLine1 && result.onLine2)
         {
             //we have collision
-            return true;
+            final = true;
+            if(!extra)
+            {
+                break;
+            }
+            else
+            {
+                var tempDist = getDistSqr(la, result);
+                if(closest.dist == null || closest.dist > tempDist)
+                {
+                    closest.dist = tempDist;
+                }
+                if(farthest.dist == null || farthest.dist < tempDist)
+                {
+                    farthest.dist = tempDist;
+                }
+            }
         }
     }
-    return false;
+    if(extra)
+    {
+        return {
+            intersects: final,
+            close: closest,
+            far: farthest
+        };
+    }
+    return final;
 }
 function p(x, y) //makes things a little bit quicker to type in console and such
 {
