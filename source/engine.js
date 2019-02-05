@@ -3,8 +3,7 @@ class UDEngine
 {
     constructor(canvasContainer)
     {
-        this.tree = new UDTree(0, 0, defaultSize.x, defaultSize.y);
-        //this.tree.filters.push(Filter.AverageColor);
+        this.tree = new UDTree(0, 0, defaultSize.x, defaultSize.y, null, null, this);
         this.camera = new UDCamera(this.tree);
 
         this.resetColor = "#DDDDDD";
@@ -28,7 +27,7 @@ class UDEngine
                     x: node.size.x,
                     y: node.size.y
                 },
-                color: node.hasContents() ? node.contents[0].getColor() : null
+                color: node.hasContents() ? node.contents[0].getColor({x: 0, y: 0}, {x: 0, y: 0}, this) : null
             });
         }
         for(var i = 0; i < rectlist.length; i++)
@@ -52,7 +51,10 @@ class UDEngine
         for(var i = 0; i < pixels.length; i++)
         {
             var col = pixels[i];
-            rect(this.ctx, offset.x + i, offset.y, offset.x + i + 1, offset.y + height, "", col);
+            if(typeof col !== "undefined" && col != null)
+            {
+                rect(this.ctx, offset.x + i, offset.y, offset.x + i + 1, offset.y + height, "", col);
+            }
         }
     }
     setSize(width, height)
@@ -64,6 +66,10 @@ class UDEngine
         this.ctx = this.canvas.getContext("2d");
         this.ctx.fillStyle = this.resetColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    getBackgroundColor(a, b)
+    {
+        return new UDColor(0, 0, 0); //todo skybox?
     }
 }
 
@@ -103,9 +109,12 @@ function getHexColor(color)
 }
 function getUsableColor(color)
 {
-    if(color.constructor.name === "UDColor")
+    if(typeof color !== "undefined" && color != null)
     {
-        return color.getHsl();
+        if(color.constructor.name === "UDColor")
+        {
+            return color.getHsl();
+        }
     }
     return color;
 }

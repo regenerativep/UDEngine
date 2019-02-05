@@ -1,50 +1,49 @@
 var Filter = {
     SolidColor: {
-        create: function(node, color) {
-            if(typeof color === "undefined")
-            {
-                node.color = node.parent.color;
-            }
-            else
-            {
-                node.color = color;
-            }
+        create: function(atom, color) {
+            atom.color = color;
+            return this;
         },
-        pass: function(a, b, color, node) {
-            return node.color;
+        pass: function(engine, a, b, color, atom) {
+            return atom.color;
         }
     },
     Transparent: {
-        create: function(node, opacity) {
+        create: function(atom, opacity) {
+            atom.opacity = opacity; //todo actually use this
+            return this;
+        },
+        pass: function(engine, a, b, color, atom, opacity) {
             if(typeof opacity === "undefined")
             {
-                node.opacity = node.parent.opacity;
+                opacity = atom.opacity;
+            }
+            let targetAtom = engine.tree.fireRayCast(a, b, [atom]), targetColor;
+            if(targetAtom == null)
+            {
+                targetColor = engine.getBackgroundColor(a, b);
             }
             else
             {
-                node.opacity = opacity; //todo use opacity somewhere
+                targetColor = targetAtom.getColor(a, b, engine);
             }
-        },
-        pass: function(a, b, color, node, opacity) {
-            var secondPos = {
-                x: node.position.x + node.size.x,
-                y: node.position.y + node.size.y
-            };
-            if(typeof opacity === "undefined")
-            {
-                opacity = node.opacity;
-            }
-            var result = lineIntersectsRectangle(a, b, node.position, secondPos, true);
-            if(result.intersects)
-            {
-                if(result.farthest.dist != null)
-                {
-                    return node.topNode.fireRayCast(result.farthest, b, [node]); //todo make result.farthest go out a little bit so that it doesnt intersect with the original node
-                }
-            }
-            return color;
+            //return weightedAverageOfColors([ color, targetColor ], [ opacity, 1 - opacity ]);
+            return targetColor;
         }
     },
+    TestRedirect: {
+        create: function(atom) {
+            return this;
+        },
+        pass: function(engine, a, b, color, atom) {
+            let targetPos = {
+                x: (b.x - a.x) + atom.position.x,
+                y: (b.y - a.y) + atom.position.y
+            };
+            return engine.tree.fireRayCast(atom.position, targetPos, [atom]);
+        }
+    }
+    /*,
     AverageColor: {
         create: function(node) {
             node.color = this.getColor(node);
@@ -88,5 +87,5 @@ var Filter = {
                 return Filter.Transparent.pass(a, b, color, node, 0);
             }
         }
-    }
+    }*/
 };

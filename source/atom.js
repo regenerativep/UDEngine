@@ -1,16 +1,24 @@
 class UDAtom
 {
-    constructor(x, y, c)
+    constructor(engine, x, y, c)
     {
         this.position = {
             x: x,
             y: y
         };
-        this.color = c;
+        this.filters = [];
+        if(typeof c !== "undefined")
+        {
+            this.filters.push(Filter.SolidColor.create(this, c))
+        }
     }
-    getColor()
+    getColor(a, b, engine)
     {
-        return this.color;
-        //todo filters
+        var color = null;
+        for(var i = 0; i < this.filters.length; i++)
+        {
+            color = this.filters[i].pass(engine, a, b, color, this);
+        }
+        return color;
     }
 }

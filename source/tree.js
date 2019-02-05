@@ -1,10 +1,12 @@
 var maxTreeContents = 1;
+var maxLeafSize = 1;
 class UDTree
 {
-    constructor(x, y, w, h, p, top)
+    constructor(x, y, w, h, p, top, engine)
     {
         this.children = null;
         this.contents = [];
+        this.engine = engine;
         this.size = {
             x: w,
             y: h
@@ -29,7 +31,7 @@ class UDTree
         if(this.children == null)
         {
             this.contents.push(item);
-            if(this.contents.length > maxTreeContents)
+            if(this.contents.length > maxTreeContents || this.size.x > maxLeafSize || this.size.y > maxLeafSize)
             {
                 this.shouldSplit = true;
             }
@@ -61,10 +63,10 @@ class UDTree
     {
         this.children = [];
         var sx = this.size.x / 2, sy = this.size.y / 2;
-        this.children.push(new UDTree(this.position.x, this.position.y, sx, sy, this, this.topNode));
-        this.children.push(new UDTree(this.position.x + sx, this.position.y, sx, sy, this, this.topNode));
-        this.children.push(new UDTree(this.position.x, this.position.y + sy, sx, sy, this, this.topNode));
-        this.children.push(new UDTree(this.position.x + sx, this.position.y + sy, sx, sy, this, this.topNode));
+        this.children.push(new UDTree(this.position.x, this.position.y, sx, sy, this, this.topNode, this.engine));
+        this.children.push(new UDTree(this.position.x + sx, this.position.y, sx, sy, this, this.topNode, this.engine));
+        this.children.push(new UDTree(this.position.x, this.position.y + sy, sx, sy, this, this.topNode, this.engine));
+        this.children.push(new UDTree(this.position.x + sx, this.position.y + sy, sx, sy, this, this.topNode, this.engine));
         for(var i = 0; i < this.contents.length; i++)
         {
             this.addItem(this.contents[i]);
@@ -85,9 +87,9 @@ class UDTree
             for(var i = 0; i < order.length; i++)
             {
                 var child = this.children[order[i]];
-                for(let node in exclude)
+                for(let ind in exclude)
                 {
-                    if(child == node)
+                    if(child == exclude[ind] || (child.hasContents() && child.contents[0] == exclude[ind]))
                     {
                         break; //we dont worry about this one
                     }

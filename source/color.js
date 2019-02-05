@@ -46,6 +46,30 @@ function averageOfColors(colorList) //this uh, might be very slow for calculatin
     lit /= colorList.length;
     return new UDColor(hue, sat, lit);
 }
+function weightedAverageOfColors(colorList, weights)
+{
+    var hueX = 0, hueY = 0, sat = 0, lit = 0;
+    for(var i = 0; i < colorList.length; i++)
+    {
+        var col = colorList[i];
+        var hueAngle = (col.hue * 2 * Math.PI) / 256; //radians
+        var weight = weights[i];
+        hueX += Math.cos(hueAngle) * weight;
+        hueY += Math.sin(hueAngle) * weight;
+        sat += col.saturation * weight;
+        lit += col.lightness * weight;
+    }
+    var hueAngle = Math.atan2(hueY, hueX); //radians
+    var hue = (hueAngle * 256) / (2 * Math.PI);
+    var weightSum = 0;
+    for(var i in weights)
+    {
+        weightSum += weights[i];
+    }
+    sat /= weightSum;
+    lit /= weightSum;
+    return new UDColor(hue, sat, lit);
+}
 function colorEquals(a, b)
 {
     if(typeof a === "undefined" || typeof b === "undefined")

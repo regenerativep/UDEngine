@@ -8,7 +8,7 @@
         <script>
             var eng;
             var rotateSpeed = 0.05, moveSpeed = 4;
-            var fps = 30;
+            var fps = 60;
             var globalSpeed = 60 / fps;
             function randInt(from, to)
             {
@@ -94,12 +94,38 @@
                     }
                     eng.update();
                 }, 1000 / fps);
-                var worldWidth = 256, worldHeight = 256;
+                var worldWidth = 256;
+                var worldHeight = 256;
                 eng.setSize(512, 512);
-                for(var i = 0; i < 64; i++)
+                
+                /*for(var i = 0; i < 1024; i++)
                 {
                     var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256));
-                    var atom = new UDAtom(randInt(0, worldWidth), randInt(0, worldHeight), color);
+                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight);
+                    var atom = new UDAtom(eng, x, y, color);
+                    eng.tree.addItem(atom);
+                }*/
+                function generateCircle(count, radius, xoff, yoff)
+                {
+                    for(var i = 0; i < count; i++)
+                    {
+                        var deg = 2 * Math.PI * (i / count);
+                        var x = Math.cos(deg) * radius + xoff;
+                        var y = Math.sin(deg) * radius + yoff;
+                        var color = new UDColor(256 * i / count, 255, 127);
+                        var atom = new UDAtom(eng, x, y, color);
+                        eng.tree.addItem(atom);
+                    }
+                }
+                for(let i = 0; i < 32; i++)
+                {
+                    let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
+                    generateCircle(64, 8, x, y);
+                }
+                for(let i = 0; i < 1024; i++)
+                {
+                    let atom = new UDAtom(eng, 0, i / 4, new UDColor(0, 255, 127));
+                    atom.filters.push(Filter.TestRedirect.create(atom));
                     eng.tree.addItem(atom);
                 }
                 eng.tree.split();
