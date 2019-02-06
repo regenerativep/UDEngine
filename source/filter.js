@@ -40,7 +40,8 @@ var Filter = {
                 x: (b.x - a.x) + atom.position.x,
                 y: (b.y - a.y) + atom.position.y
             };
-            return engine.tree.fireRayCast(atom.position, targetPos, [atom]);
+            let targetAtom = engine.tree.fireRayCast(atom.position, targetPos, [atom]);
+            return atom.getColor(a, b, engine);
         }
     }
     /*,
