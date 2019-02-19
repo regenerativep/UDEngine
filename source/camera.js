@@ -19,7 +19,9 @@ class UDCamera
         var startingDir = this.direction - halfFov;
         var pixArr = [];
         var sw = new Stopwatch();
+        let fps_sw = new Stopwatch();
         var elapsedTimes = [];
+        fps_sw.start();
         for(var i = 0; i < width; i++)
         {
             var rayDir = startingDir + ((this.fov * i) / width);
@@ -27,39 +29,35 @@ class UDCamera
                 x: this.position.x + (Math.cos(rayDir) * this.viewDist),
                 y: this.position.y + (Math.sin(rayDir) * this.viewDist)
             };
+            let ray = new UDRay(this.position, rayVec, this.tree.engine);
             sw.start();
-            var atom = this.tree.fireRayCast(this.position, rayVec);
+            var atom = this.tree.fireRayCast(ray);
             var elapsed = sw.stop();
             elapsedTimes.push(elapsed);
             var color;
             if(atom == null)
             {
-                color = this.tree.engine.getBackgroundColor(this.position, rayVec);
+                color = this.tree.engine.getBackgroundColor(ray);
                 //todo make a ray object
             }
             else
             {
-                color = atom.getColor(this.position, rayVec, this.tree.engine);
+                color = atom.getColor(ray);
             }
             pixArr.push(color);
         }
-        /*
-        var avg = 0;
-        for(var i = 0; i < elapsedTimes.length; i++)
-        {
-            avg += elapsedTimes[i];
-        }
-        avg /= elapsedTimes.length;
-        console.log(avg);*/
-        var max = 0;
+        var max = 0, avg = 0;
         for(var i in elapsedTimes)
         {
-            if(max < elapsedTimes[i])
+            let time = elapsedTimes[i];
+            avg += time;
+            if(max < time)
             {
-                max = elapsedTimes[i];
+                max = time;
             }
         }
-        console.log(max);
+        avg /= elapsedTimes.length;
+        console.log("pixel max: " + max + "pixel avg: " + avg + ", frame: " + fps_sw.stop());
         return pixArr;
     }
 }

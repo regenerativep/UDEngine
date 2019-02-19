@@ -1,5 +1,6 @@
 var maxTreeContents = 1;
 var maxLeafSize = 1;
+var deepestDepth = 0;
 class UDTree
 {
     constructor(x, y, w, h, p, top, engine)
@@ -17,13 +18,19 @@ class UDTree
         };
         this.parent = p;
         this.shouldSplit = false;
-        if(typeof top === "undefined")
+        if(typeof top === "undefined" || top == null)
         {
             this.topNode = this;
+            this.depth = 0;
         }
         else
         {
             this.topNode = top;
+            this.depth = p.depth + 1;
+            if(this.depth > deepestDepth)
+            {
+                deepestDepth = this.depth;
+            }
         }
     }
     addItem(item)
@@ -74,22 +81,18 @@ class UDTree
         this.contents = null;
         this.shouldSplit = false;
     }
-    fireRayCast(from, to, exclude)
+    fireRayCast(ray)
     {
-        if(typeof exclude === "undefined")
-        {
-            exclude = [];
-        }
         if(!this.isLeaf())
         {
-            var side = inWhichSide(this.position, this.size, from);
+            var side = inWhichSide(this.position, this.size, ray.from);
             var order = getOrder(side);
             for(var i = 0; i < order.length; i++)
             {
                 var child = this.children[order[i]];
-                for(let ind in exclude)
+                for(let ind in ray.exclude)
                 {
-                    if(child == exclude[ind] || (child.hasContents() && child.contents[0] == exclude[ind]))
+                    if(child == ray.exclude[ind] || (child.hasContents() && child.contents[0] == ray.exclude[ind]))
                     {
                         break; //we dont worry about this one
                     }
@@ -98,21 +101,24 @@ class UDTree
                     x: child.position.x + child.size.x,
                     y: child.position.y + child.size.y
                 };
-                if(lineIntersectsRectangle(from, to, child.position, secondPos))
+                if(lineIntersectsRectangle(ray.from, ray.to, child.position, secondPos))
                 {
-                    let atom = child.fireRayCast(from, to, exclude);
+                    let atom = child.fireRayCast(ray);
                     if(atom != null)
                     {
+                        ray.depth++;
                         return atom;
                     }
                 }
                 
             }
         }
+        ray.depth++;
         if(!this.hasContents())
         {
             return null;
         }
+        ray.depth++;
         return this.contents[0];
     }
     hasContents()

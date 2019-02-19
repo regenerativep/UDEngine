@@ -1,16 +1,16 @@
 class UDColor
 {
     /*
-        h - hue (0 - 255)
+        h - hue (0 - 359)
         s - saturation (0 - 255)
         l - lightness (0 - 255)
     */
     constructor(h, s, l)
     {
-        this.hue = h % 256;
+        this.hue = h % 360;
         this.saturation = s % 256;
         this.lightness = l % 256;
-        while(this.hue < 0) this.hue += 256;
+        while(this.hue < 0) this.hue += 360;
         while(this.saturation < 0) this.saturation += 256;
         while(this.lightness < 0) this.lightness += 256;
     }
@@ -34,14 +34,14 @@ function averageOfColors(colorList) //this uh, might be very slow for calculatin
     for(var i = 0; i < colorList.length; i++)
     {
         var col = colorList[i];
-        var hueAngle = (col.hue * 2 * Math.PI) / 256; //radians
+        var hueAngle = (col.hue * 2 * Math.PI) / 360; //radians
         hueX += Math.cos(hueAngle);
         hueY += Math.sin(hueAngle);
         sat += col.saturation;
         lit += col.lightness;
     }
     var hueAngle = Math.atan2(hueY, hueX); //radians
-    var hue = (hueAngle * 256) / (2 * Math.PI);
+    var hue = (hueAngle * 360) / (2 * Math.PI);
     sat /= colorList.length;
     lit /= colorList.length;
     return new UDColor(hue, sat, lit);
@@ -52,7 +52,7 @@ function weightedAverageOfColors(colorList, weights)
     for(var i = 0; i < colorList.length; i++)
     {
         var col = colorList[i];
-        var hueAngle = (col.hue * 2 * Math.PI) / 256; //radians
+        var hueAngle = (col.hue * 2 * Math.PI) / 360; //radians
         var weight = weights[i];
         hueX += Math.cos(hueAngle) * weight;
         hueY += Math.sin(hueAngle) * weight;
@@ -60,7 +60,7 @@ function weightedAverageOfColors(colorList, weights)
         lit += col.lightness * weight;
     }
     var hueAngle = Math.atan2(hueY, hueX); //radians
-    var hue = (hueAngle * 256) / (2 * Math.PI);
+    var hue = (hueAngle * 360) / (2 * Math.PI);
     var weightSum = 0;
     for(var i in weights)
     {

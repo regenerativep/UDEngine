@@ -4,7 +4,7 @@ var Filter = {
             atom.color = color;
             return this;
         },
-        pass: function(engine, a, b, color, atom) {
+        pass: function(ray, color, atom) {
             return atom.color;
         }
     },
@@ -13,19 +13,21 @@ var Filter = {
             atom.opacity = opacity; //todo actually use this
             return this;
         },
-        pass: function(engine, a, b, color, atom, opacity) {
+        pass: function(ray, color, atom, opacity) {
             if(typeof opacity === "undefined")
             {
                 opacity = atom.opacity;
             }
-            let targetAtom = engine.tree.fireRayCast(a, b, [atom]), targetColor;
+            ray.push(atom);
+            let targetAtom = ray.engine.tree.fireRayCast(ray);
+            let targetColor;
             if(targetAtom == null)
             {
-                targetColor = engine.getBackgroundColor(a, b);
+                targetColor = ray.engine.getBackgroundColor(ray);
             }
             else
             {
-                targetColor = targetAtom.getColor(a, b, engine);
+                targetColor = targetAtom.getColor(ray);
             }
             //return weightedAverageOfColors([ color, targetColor ], [ opacity, 1 - opacity ]);
             return targetColor;
@@ -35,13 +37,23 @@ var Filter = {
         create: function(atom) {
             return this;
         },
-        pass: function(engine, a, b, color, atom) {
+        pass: function(ray, color, atom) {
             let targetPos = {
-                x: (b.x - a.x) + atom.position.x,
-                y: (b.y - a.y) + atom.position.y
+                x: (ray.to.x - ray.from.x) + atom.position.x,
+                y: (ray.to.y - ray.from.y) + atom.position.y
             };
-            let targetAtom = engine.tree.fireRayCast(atom.position, targetPos, [atom]);
-            return atom.getColor(a, b, engine);
+            ray.exclude.push(atom);
+            ray.from = {
+                x: atom.position.x + 1,
+                y: atom.position.y
+            };
+            ray.to = targetPos;
+            let targetAtom = ray.engine.tree.fireRayCast(ray);
+            if(targetAtom == null)
+            {
+                return ray.engine.getBackgroundColor(ray);
+            }
+            return targetAtom.getColor(ray);
         }
     }
     /*,

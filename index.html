@@ -10,6 +10,7 @@
             var rotateSpeed = 0.05, moveSpeed = 4;
             var fps = 60;
             var globalSpeed = 60 / fps;
+            var mainLoopInterval;
             function randInt(from, to)
             {
                 return Math.floor(Math.random() * (to - from)) + from;
@@ -72,7 +73,7 @@
                             break;
                     }
                 });
-                window.setInterval(function() {
+                mainLoopInterval = window.setInterval(function() {
                     //eng.camera.direction += 0.02;
                     if(keyPresses.left)
                     {
@@ -112,15 +113,16 @@
                         var deg = 2 * Math.PI * (i / count);
                         var x = Math.cos(deg) * radius + xoff;
                         var y = Math.sin(deg) * radius + yoff;
-                        var color = new UDColor(256 * i / count, 255, 127);
+                        var color = new UDColor(360 * i / count, 255, 127);
+                        console.log(color.hue);
                         var atom = new UDAtom(eng, x, y, color);
                         eng.tree.addItem(atom);
                     }
                 }
-                for(let i = 0; i < 32; i++)
+                for(let i = 0; i < 8; i++)
                 {
                     let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
-                    generateCircle(64, 8, x, y);
+                    generateCircle(256, 32, x, y);
                 }
                 for(let i = 0; i < 1024; i++)
                 {

@@ -27,7 +27,7 @@ class UDEngine
                     x: node.size.x,
                     y: node.size.y
                 },
-                color: node.hasContents() ? node.contents[0].getColor({x: 0, y: 0}, {x: 0, y: 0}, this) : null
+                color: node.hasContents() ? node.contents[0].getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
             });
         }
         for(var i = 0; i < rectlist.length; i++)
@@ -67,7 +67,7 @@ class UDEngine
         this.ctx.fillStyle = this.resetColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    getBackgroundColor(a, b)
+    getBackgroundColor(ray)
     {
         return new UDColor(0, 0, 0); //todo skybox?
     }

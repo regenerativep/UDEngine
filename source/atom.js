@@ -1,3 +1,4 @@
+var maxRayDepth = 4;
 class UDAtom
 {
     constructor(engine, x, y, c)
@@ -12,12 +13,19 @@ class UDAtom
             this.filters.push(Filter.SolidColor.create(this, c))
         }
     }
-    getColor(a, b, engine)
+    getColor(ray)
     {
+        if(ray.depth > maxRayDepth)
+        {
+            if(this.filters.length > 0 && this.filters[0] == Filter.SolidColor)
+            {
+                return this.filters[0].pass(ray, null, this);
+            }
+        }
         var color = null;
         for(var i = 0; i < this.filters.length; i++)
         {
-            color = this.filters[i].pass(engine, a, b, color, this);
+            color = this.filters[i].pass(ray, color, this);
         }
         return color;
     }
