@@ -1,9 +1,14 @@
 var defaultSize = { x: 256, y: 256 };
 class UDEngine
 {
-    constructor(canvasContainer)
+    constructor(canvasContainer, width, height)
     {
-        this.tree = new UDTree(0, 0, defaultSize.x, defaultSize.y, null, null, this);
+        if(typeof width !== "number" || typeof height !== "number")
+        {
+            width = defaultSize.x;
+            height = defaultSize.y;
+        }
+        this.tree = new UDTree(0, 0, width, height, null, null, this);
         this.camera = new UDCamera(this.tree);
 
         this.resetColor = "#DDDDDD";
@@ -12,7 +17,7 @@ class UDEngine
     }
     update()
     {
-        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");
+        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");/*
         var rectlist = [];
         var treeList = this.tree.getAllChildren();
         for(var i = 0; i < treeList.length; i++)
@@ -27,7 +32,7 @@ class UDEngine
                     x: node.size.x,
                     y: node.size.y
                 },
-                color: node.hasContents() ? node.contents[0].getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
+                color: node.hasContents() ? node.contents.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
             });
         }
         for(var i = 0; i < rectlist.length; i++)
@@ -37,7 +42,7 @@ class UDEngine
             {
                 rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
             }
-        }
+        }*/
         var visualCamRadius = 4, visualCamDirLength = 16;
         rect(this.ctx, this.camera.position.x - visualCamRadius, this.camera.position.y - visualCamRadius, this.camera.position.x + visualCamRadius, this.camera.position.y + visualCamRadius, "", "#000000");
         line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction) * visualCamDirLength), this.camera.position.y + (Math.sin(this.camera.direction) * visualCamDirLength), "#0000FF");

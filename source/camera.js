@@ -57,7 +57,7 @@ class UDCamera
             }
         }
         avg /= elapsedTimes.length;
-        console.log("pixel max: " + max + "pixel avg: " + avg + ", frame: " + fps_sw.stop());
+        console.log("pixel max: " + max + "\npixel avg: " + avg + "\nframe: " + fps_sw.stop());
         return pixArr;
     }
 }

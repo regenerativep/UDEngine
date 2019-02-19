@@ -1,4 +1,3 @@
-var maxTreeContents = 1;
 var maxLeafSize = 1;
 var deepestDepth = 0;
 class UDTree
@@ -6,7 +5,7 @@ class UDTree
     constructor(x, y, w, h, p, top, engine)
     {
         this.children = null;
-        this.contents = [];
+        this.contents = null;
         this.engine = engine;
         this.size = {
             x: w,
@@ -17,7 +16,6 @@ class UDTree
             y: y
         };
         this.parent = p;
-        this.shouldSplit = false;
         if(typeof top === "undefined" || top == null)
         {
             this.topNode = this;
@@ -37,15 +35,22 @@ class UDTree
     {
         if(this.children == null)
         {
-            this.contents.push(item);
-            if(this.contents.length > maxTreeContents || this.size.x > maxLeafSize || this.size.y > maxLeafSize)
+            if(this.contents == null)
             {
-                this.shouldSplit = true;
+                this.contents = item;
+                if(this.size.x > maxLeafSize || this.size.y > maxLeafSize)
+                {
+                    this.split();
+                }
+            }
+            else
+            {
+                this.split(item);
             }
         }
         else
         {
-            var side = inWhichSide(this.position, this.size, item.position);
+            let side = inWhichSide(this.position, this.size, item.position)
             this.children[side].addItem(item);
         }
         this.constructor._super.emit("atomAdd", item);
@@ -66,7 +71,7 @@ class UDTree
             return [this];
         }
     }
-    split()
+    split(item)
     {
         this.children = [];
         var sx = this.size.x / 2, sy = this.size.y / 2;
@@ -74,12 +79,15 @@ class UDTree
         this.children.push(new UDTree(this.position.x + sx, this.position.y, sx, sy, this, this.topNode, this.engine));
         this.children.push(new UDTree(this.position.x, this.position.y + sy, sx, sy, this, this.topNode, this.engine));
         this.children.push(new UDTree(this.position.x + sx, this.position.y + sy, sx, sy, this, this.topNode, this.engine));
-        for(var i = 0; i < this.contents.length; i++)
+        if(typeof item !== "undefined")
         {
-            this.addItem(this.contents[i]);
+            this.addItem(item);
+        }
+        if(this.contents != null)
+        {
+            this.addItem(this.contents);
         }
         this.contents = null;
-        this.shouldSplit = false;
     }
     fireRayCast(ray)
     {
@@ -92,7 +100,7 @@ class UDTree
                 var child = this.children[order[i]];
                 for(let ind in ray.exclude)
                 {
-                    if(child == ray.exclude[ind] || (child.hasContents() && child.contents[0] == ray.exclude[ind]))
+                    if(child == ray.exclude[ind] || (child.hasContents() && child.contents == ray.exclude[ind]))
                     {
                         break; //we dont worry about this one
                     }
@@ -119,19 +127,14 @@ class UDTree
             return null;
         }
         ray.depth++;
-        return this.contents[0];
+        return this.contents;
     }
     hasContents()
     {
-        return this.contents != null && this.contents.length > 0;
+        return this.contents != null;
     }
     isLeaf()
     {
-        if(this.shouldSplit)
-        {
-            this.split();
-            return false;
-        }
         return this.children == null;
     }
     addFilter(filter)
