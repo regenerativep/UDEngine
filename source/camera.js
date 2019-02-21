@@ -1,14 +1,14 @@
 class UDCamera
 {
-    constructor(tree)
+    constructor(engine)
     {
         this.position = {
             x: 0,
             y: 0
         };
+        this.engine = engine;
         this.direction = 0; //radians
         this.fov = Math.PI / 2;
-        this.tree = tree;
         this.viewDist = 512;
     }
     getPixelArray(width)
@@ -29,16 +29,15 @@ class UDCamera
                 x: this.position.x + (Math.cos(rayDir) * this.viewDist),
                 y: this.position.y + (Math.sin(rayDir) * this.viewDist)
             };
-            let ray = new UDRay(this.position, rayVec, this.tree.engine);
+            let ray = new UDRay(this.position, rayVec, this.engine);
             sw.start();
-            var atom = this.tree.fireRayCast(ray);
+            var atom = this.engine.fireRayCast(ray);
             var elapsed = sw.stop();
             elapsedTimes.push(elapsed);
             var color;
             if(atom == null)
             {
-                color = this.tree.engine.getBackgroundColor(ray);
-                //todo make a ray object
+                color = this.engine.getBackgroundColor(ray);
             }
             else
             {

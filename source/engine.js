@@ -8,8 +8,17 @@ class UDEngine
             width = defaultSize.x;
             height = defaultSize.y;
         }
-        this.tree = new UDTree(0, 0, width, height, null, null, this);
-        this.camera = new UDCamera(this.tree);
+        this.width = width;
+        this.height = height;
+        this.maxLeafSize = 4;
+        this.deepestDepth = 0;
+        this.currentNodeKey = 0;
+        this.maximumPasses = 4;
+        this.nodeList = {};
+        this.depthList = [ { x: width, y: height } ];
+        this.createNode(0, 0);
+
+        this.camera = new UDCamera(this); //todo: cameras should not be a part of the engine
 
         this.resetColor = "#DDDDDD";
         this.canvas = document.createElement("canvas");
@@ -17,38 +26,206 @@ class UDEngine
     }
     update()
     {
-        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");/*
-        var rectlist = [];
-        var treeList = this.tree.getAllChildren();
-        for(var i = 0; i < treeList.length; i++)
-        {
-            var node = treeList[i];
-            rectlist.push({
-                position: {
-                    x: node.position.x,
-                    y: node.position.y
-                },
-                size: {
-                    x: node.size.x,
-                    y: node.size.y
-                },
-                color: node.hasContents() ? node.contents.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
-            });
-        }
-        for(var i = 0; i < rectlist.length; i++)
-        {
-            var r = rectlist[i];
-            if(r.color != null)
-            {
-                rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
-            }
-        }*/
+        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");
+        //this.drawWorld();
         var visualCamRadius = 4, visualCamDirLength = 16;
         rect(this.ctx, this.camera.position.x - visualCamRadius, this.camera.position.y - visualCamRadius, this.camera.position.x + visualCamRadius, this.camera.position.y + visualCamRadius, "", "#000000");
         line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction) * visualCamDirLength), this.camera.position.y + (Math.sin(this.camera.direction) * visualCamDirLength), "#0000FF");
         line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
         line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
         this.drawCamera(512, 32, { x: 0, y: 480 });
+    }
+    drawWorld()
+    {
+        let rectlist = [];
+        let treeList = this.getAllChildren(0);
+        for(var i = 0; i < treeList.length; i++)
+        {
+            let pair = treeList[i];
+            rectlist.push({
+                position: pair.node,
+                size: this.depthList[pair.depth],
+                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
+            });
+        }
+        for(let i in rectlist)
+        {
+            let r = rectlist[i];
+            if(r.color != null)
+            {
+                rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
+            }
+        }
+    }
+    getAllChildren(nodeKey, depth) //don't run this a lot. really slow
+    {
+        if(typeof depth !== "number")
+        {
+            depth = 0;
+        }
+        let node = this.getNode(nodeKey);
+        if(node.children == null)
+        {
+            return [ { depth: depth, node: node } ];
+        }
+        let childList = [];
+        for(let i in node.children)
+        {
+            childList.push(...this.getAllChildren(node.children[i], depth + 1));
+        }
+        return childList;
+    }
+    createNode(x, y)
+    {
+        let node = new UDNode(x, y);
+        let key = this.currentNodeKey++;
+        this.nodeList[key] = node;
+        return key;
+    }
+    split(nodeKey, depth) //depth should be the depth of the given node
+    {
+        let node = this.getNode(nodeKey);
+        let nextDepth = depth + 1;
+        this.updateDepthList(nextDepth);
+        let sze = this.depthList[nextDepth];
+        node.children = [];
+        node.children.push(this.createNode(node.x, node.y));
+        node.children.push(this.createNode(node.x + sze.x, node.y));
+        node.children.push(this.createNode(node.x, node.y + sze.y));
+        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y));
+        if(node.atom != null)
+        {
+            this.addItem(node, node.atom, depth);
+            node.atom = null;
+        }
+        if(this.deepestDepth < nextDepth)
+        {
+            this.deepestDepth = nextDepth;
+        }
+    }
+    getNode(nodeKey)
+    {
+        if(typeof nodeKey === "number")
+        {
+            return this.nodeList[nodeKey];
+        }
+        if(typeof nodeKey === "object")
+        {
+            return nodeKey; //its *probably* a node
+        }
+        return null;
+    }
+    addItem(nodeKey, item, depth)
+    {
+        if(typeof depth !== "number")
+        {
+            depth = 0;
+        }
+        let node = this.getNode(nodeKey);
+        if(typeof item === "undefined")
+        {
+            //we are assuming that we're given the item as the first argument, instead of the node
+            item = node;
+            nodeKey = 0;
+            node = this.nodeList[0];
+        }
+        let currentNode = node;
+        while(currentNode.children != null)
+        {
+            this.updateDepthList(depth);
+            let side = inWhichSide(currentNode, this.depthList[depth], item.position);
+            currentNode = this.getNode(currentNode.children[side]);
+            depth++;
+        }
+        //todo make this not recursive
+        if(currentNode.atom != null || this.depthList[depth].x > this.maxLeafSize || this.depthList[depth].y > this.maxLeafSize)
+        {
+            this.split(currentNode, depth);
+            this.addItem(currentNode, item, depth); //warning: infinite recursion if item's position == node's item's position
+        }
+        else
+        {
+            currentNode.atom = item;
+        }
+    }
+    updateDepthList(depth)
+    {
+        if(this.depthList.length >= depth + 1)
+        {
+            return;
+        }
+        for(let i = this.depthList.length; i < depth + 1; i++)
+        {
+            let lastDepthSize = this.depthList[i - 1];
+            this.depthList.push({
+                x: lastDepthSize.x / 2,
+                y: lastDepthSize.y / 2
+            });
+        }
+    }
+    fireRayCast(ray, nodeKey, depth) //todo fix this again >:(
+    {
+        let node = this.getNode(nodeKey);
+        if(typeof node === "undefined" || node == null)
+        {
+            node = this.nodeList[0];
+            nodeKey = 0;
+            depth = 0;
+        }
+        if(ray.depth > this.maximumPasses)
+        {
+            return null;
+        }
+        ray.depth++;
+        let remainingNodes = [ { depth: depth, node: nodeKey } ];
+        while(remainingNodes.length > 0)
+        {
+            let pair = remainingNodes.pop();
+            let node = this.getNode(pair.node);
+            if(node.children != null)
+            {
+                let side = inWhichSide(node, this.depthList[pair.depth], ray.from);
+                let order = getOrder(side);
+                let pos = remainingNodes.length;
+                for(let j in order)
+                {
+                    let childKey = node.children[order[j]];
+                    let child = this.getNode(childKey);
+                    let excludeThis = false;
+                    for(let ind in ray.exclude)
+                    {
+                        if(child == ray.exclude[ind] || (child.atom != null && child.atom == ray.exclude[ind]))
+                        {
+                            excludeThis = true;
+                            break;
+                        }
+                    }
+                    if(excludeThis)
+                    {
+                        continue;
+                    }
+                    let secondPos = {
+                        x: child.x + this.depthList[pair.depth + 1].x,
+                        y: child.y + this.depthList[pair.depth + 1].y
+                    };
+                    if(lineIntersectsRectangle(ray.from, ray.to, child, secondPos))
+                    {
+                        remainingNodes.splice(pos, 0, {
+                            depth: pair.depth + 1,
+                            node: childKey
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if(node.atom != null)
+                {
+                    return node.atom;
+                }
+            }
+        }
+        return null;
     }
     drawCamera(width, height, offset)
     {
@@ -58,7 +235,7 @@ class UDEngine
             var col = pixels[i];
             if(typeof col !== "undefined" && col != null)
             {
-                rect(this.ctx, offset.x + i, offset.y, offset.x + i + 1, offset.y + height, "", col);
+                line(this.ctx, offset.x + i, offset.y, offset.x + i, offset.y + height, col);
             }
         }
     }
@@ -97,6 +274,7 @@ function line(ctx, x1, y1, x2, y2, color)
     x2 = Math.floor(x2);
     y2 = Math.floor(y2);
     var col = getUsableColor(color);
+    ctx.beginPath();
     ctx.strokeStyle = col;
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);

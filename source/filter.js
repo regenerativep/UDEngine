@@ -19,7 +19,7 @@ var Filter = {
                 opacity = atom.opacity;
             }
             ray.push(atom);
-            let targetAtom = ray.engine.tree.fireRayCast(ray);
+            let targetAtom = ray.engine.fireRayCast(ray);
             let targetColor;
             if(targetAtom == null)
             {
@@ -48,7 +48,7 @@ var Filter = {
                 y: atom.position.y
             };
             ray.to = targetPos;
-            let targetAtom = ray.engine.tree.fireRayCast(ray);
+            let targetAtom = ray.engine.fireRayCast(ray);
             if(targetAtom == null)
             {
                 return ray.engine.getBackgroundColor(ray);

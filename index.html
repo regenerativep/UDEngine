@@ -2,8 +2,6 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <script src="./Heir/heir.js"></script>
-        <script src="./EventEmitter/EventEmitter.min.js"></script>
         <script src="./engine.js"></script>
         <script>
             var eng;
@@ -23,6 +21,37 @@
                 up: false,
                 down: false
             };
+            function mainUpdate()
+            {
+                //eng.camera.direction += 0.02;
+                if(keyPresses.left)
+                {
+                    eng.camera.direction -= rotateSpeed * globalSpeed;
+                }
+                if(keyPresses.right)
+                {
+                    eng.camera.direction += rotateSpeed * globalSpeed;
+                }
+                if(keyPresses.up)
+                {
+                    eng.camera.position.x += Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
+                    eng.camera.position.y += Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
+                }
+                if(keyPresses.down)
+                {
+                    eng.camera.position.x -= Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
+                    eng.camera.position.y -= Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
+                }
+                eng.update();
+            }
+            function startMainLoop()
+            {
+                mainLoopInterval = window.setInterval(mainUpdate, 1000 / fps);
+            }
+            function stopMainLoop()
+            {
+                clearInterval(mainLoopInterval);
+            }
             window.addEventListener("load", function() {
                 eng = new UDEngine(document.getElementById("container"), worldWidth, worldHeight);
                 function setCameraOnClick()
@@ -75,37 +104,17 @@
                             break;
                     }
                 });
-                mainLoopInterval = window.setInterval(function() {
-                    //eng.camera.direction += 0.02;
-                    if(keyPresses.left)
-                    {
-                        eng.camera.direction -= rotateSpeed * globalSpeed;
-                    }
-                    if(keyPresses.right)
-                    {
-                        eng.camera.direction += rotateSpeed * globalSpeed;
-                    }
-                    if(keyPresses.up)
-                    {
-                        eng.camera.position.x += Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
-                        eng.camera.position.y += Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
-                    }
-                    if(keyPresses.down)
-                    {
-                        eng.camera.position.x -= Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
-                        eng.camera.position.y -= Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
-                    }
-                    eng.update();
-                }, 1000 / fps);
+                startMainLoop();
                 eng.setSize(512, 512);
-                
-                /*for(var i = 0; i < 1024; i++)
+                /*
+                for(var i = 0; i < 10; i++)
                 {
                     var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256));
                     var x = randInt(0, worldWidth), y = randInt(0, worldHeight);
                     var atom = new UDAtom(eng, x, y, color);
-                    eng.tree.addItem(atom);
+                    eng.addItem(atom);
                 }*/
+                
                 function generateCircle(count, radius, xoff, yoff)
                 {
                     for(var i = 0; i < count; i++)
@@ -115,7 +124,7 @@
                         var y = Math.sin(deg) * radius + yoff;
                         var color = new UDColor(360 * i / count, 255, 127);
                         var atom = new UDAtom(eng, x, y, color);
-                        eng.tree.addItem(atom);
+                        eng.addItem(atom);
                     }
                 }
                 let numCircles = 126;
@@ -129,9 +138,8 @@
                 {
                     let atom = new UDAtom(eng, 0, i / 4, new UDColor(0, 255, 127));
                     atom.filters.push(Filter.TestRedirect.create(atom));
-                    eng.tree.addItem(atom);
+                    eng.addItem(atom);
                 }
-                eng.tree.split();
                 eng.update();
             });
         </script>
