@@ -59,4 +59,16 @@ class UDCamera
         console.log("pixel max: " + max + "\npixel avg: " + avg + "\nframe: " + fps_sw.stop());
         return pixArr;
     }
+    draw(width, height, offset)
+    {
+        var pixels = this.getPixelArray(width);
+        for(var i = 0; i < pixels.length; i++)
+        {
+            var col = pixels[i];
+            if(typeof col !== "undefined" && col != null)
+            {
+                line(this.engine.ctx, offset.x + i, offset.y, offset.x + i, offset.y + height, col);
+            }
+        }
+    }
 }

@@ -17,23 +17,9 @@ class UDEngine
         this.nodeList = {};
         this.depthList = [ { x: width, y: height } ];
         this.createNode(0, 0);
-
-        this.camera = new UDCamera(this); //todo: cameras should not be a part of the engine
-
         this.resetColor = "#DDDDDD";
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
-    }
-    update()
-    {
-        rect(this.ctx, 0, 0, this.width, this.height, "", "#FFFFFF");
-        //this.drawWorld();
-        var visualCamRadius = 4, visualCamDirLength = 16;
-        rect(this.ctx, this.camera.position.x - visualCamRadius, this.camera.position.y - visualCamRadius, this.camera.position.x + visualCamRadius, this.camera.position.y + visualCamRadius, "", "#000000");
-        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction) * visualCamDirLength), this.camera.position.y + (Math.sin(this.camera.direction) * visualCamDirLength), "#0000FF");
-        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction + (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
-        line(this.ctx, this.camera.position.x, this.camera.position.y, this.camera.position.x + (Math.cos(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), this.camera.position.y + (Math.sin(this.camera.direction - (this.camera.fov / 2)) * this.camera.viewDist), "#0000FF");
-        this.drawCamera(512, 32, { x: 0, y: 480 });
     }
     drawWorld()
     {
@@ -226,18 +212,6 @@ class UDEngine
             }
         }
         return null;
-    }
-    drawCamera(width, height, offset)
-    {
-        var pixels = this.camera.getPixelArray(width);
-        for(var i = 0; i < pixels.length; i++)
-        {
-            var col = pixels[i];
-            if(typeof col !== "undefined" && col != null)
-            {
-                line(this.ctx, offset.x + i, offset.y, offset.x + i, offset.y + height, col);
-            }
-        }
     }
     setSize(width, height)
     {

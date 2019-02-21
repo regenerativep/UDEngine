@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <script src="./engine.js"></script>
         <script>
-            var eng;
+            var eng, camera;
             var rotateSpeed = 0.03, moveSpeed = 1;
             var fps = 60;
             var globalSpeed = 60 / fps;
@@ -26,23 +26,31 @@
                 //eng.camera.direction += 0.02;
                 if(keyPresses.left)
                 {
-                    eng.camera.direction -= rotateSpeed * globalSpeed;
+                    camera.direction -= rotateSpeed * globalSpeed;
                 }
                 if(keyPresses.right)
                 {
-                    eng.camera.direction += rotateSpeed * globalSpeed;
+                    camera.direction += rotateSpeed * globalSpeed;
                 }
                 if(keyPresses.up)
                 {
-                    eng.camera.position.x += Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
-                    eng.camera.position.y += Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
+                    camera.position.x += Math.cos(camera.direction) * moveSpeed * globalSpeed;
+                    camera.position.y += Math.sin(camera.direction) * moveSpeed * globalSpeed;
                 }
                 if(keyPresses.down)
                 {
-                    eng.camera.position.x -= Math.cos(eng.camera.direction) * moveSpeed * globalSpeed;
-                    eng.camera.position.y -= Math.sin(eng.camera.direction) * moveSpeed * globalSpeed;
+                    camera.position.x -= Math.cos(camera.direction) * moveSpeed * globalSpeed;
+                    camera.position.y -= Math.sin(camera.direction) * moveSpeed * globalSpeed;
                 }
-                eng.update();
+                rect(eng.ctx, 0, 0, worldWidth, worldHeight, "", "#FFFFFF");
+                //eng.drawWorld();
+                let visualCamRadius = 4, visualCamDirLength = 16;
+                let cx = camera.position.x, cy = camera.position.y, dir = camera.direction;
+                rect(eng.ctx, cx - visualCamRadius, cy - visualCamRadius, cx + visualCamRadius, cy + visualCamRadius, "", "#000000");
+                line(eng.ctx, cx, cy, cx + (Math.cos(dir) * visualCamDirLength), cy + (Math.sin(dir) * visualCamDirLength), "#0000FF");
+                line(eng.ctx, cx, cy, cx + (Math.cos(dir + (camera.fov / 2)) * camera.viewDist), cy + (Math.sin(dir + (camera.fov / 2)) * camera.viewDist), "#0000FF");
+                line(eng.ctx, cx, cy, cx + (Math.cos(dir - (camera.fov / 2)) * camera.viewDist), cy + (Math.sin(dir - (camera.fov / 2)) * camera.viewDist), "#0000FF");
+                camera.draw(512, 32, { x: 0, y: 480 });
             }
             function startMainLoop()
             {
@@ -54,21 +62,21 @@
             }
             window.addEventListener("load", function() {
                 eng = new UDEngine(document.getElementById("container"), worldWidth, worldHeight);
+                camera = new UDCamera(eng);
                 function setCameraOnClick()
                 {
                     var x = parseInt(document.getElementById("xval").value);
                     var y = parseInt(document.getElementById("yval").value);
                     var angle = parseFloat(document.getElementById("angle").value) * ( Math.PI / 180);
-                    eng.camera.position = {
+                    camera.position = {
                         x: x,
                         y: y
                     };
-                    eng.camera.direction = angle;
+                    camera.direction = angle;
                 }
                 document.getElementById("setbutton").addEventListener("click", setCameraOnClick);
                 document.getElementById("updatebutton").addEventListener("click", function() {
                     setCameraOnClick();
-                    eng.update();
                 });
                 document.addEventListener("keydown", function(event) {
                     switch(event.keyCode)
@@ -140,7 +148,6 @@
                     atom.filters.push(Filter.TestRedirect.create(atom));
                     eng.addItem(atom);
                 }
-                eng.update();
             });
         </script>
         <style>
