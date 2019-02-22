@@ -31,7 +31,7 @@ class UDEngine
             rectlist.push({
                 position: pair.node,
                 size: this.depthList[pair.depth],
-                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
+                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null //todo this might need fixing
             });
         }
         for(let i in rectlist)
@@ -201,7 +201,7 @@ class UDEngine
                         x: child.x + this.depthList[pair.depth + 1].x,
                         y: child.y + this.depthList[pair.depth + 1].y
                     };
-                    if(lineIntersectsRectangle(ray.from, ray.to, child, secondPos))
+                    if(rayRectIntersection(child, secondPos, ray))
                     {
                         remainingNodes.splice(pos, 0, {
                             depth: pair.depth + 1,
@@ -236,7 +236,7 @@ class UDEngine
     }
 }
 
-function rect(ctx, x1, y1, x2, y2, outlineColor, fillColor) //todo allow filling?
+function rect(ctx, x1, y1, x2, y2, outlineColor, fillColor)
 {
     x1 = Math.floor(x1);
     y1 = Math.floor(y1);

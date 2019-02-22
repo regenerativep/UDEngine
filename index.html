@@ -137,11 +137,11 @@
                         eng.addItem(atom);
                     }
                 }
-                let numCircles = 4;
+                let numCircles = 128;
                 for(let i = 0; i < numCircles; i++)
                 {
                     let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
-                    generateCircle(256, 16, x, y);
+                    generateCircle(256, 4, x, y);
                     console.log("circle " + (i + 1) + " / " + numCircles);
                 }/*
                 for(let i = 0; i < 1024; i++)

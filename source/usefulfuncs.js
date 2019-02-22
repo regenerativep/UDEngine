@@ -260,10 +260,62 @@ function lineIntersectsRectangle(la, lb, ra, rb, extra)
     }
     return final;
 }
-function p(x, y) //makes things a little bit quicker to type in console and such
+function p(x, y, z) //makes things a little bit quicker to type in console and such
 {
+    if(typeof z !== "number")
+    {
+        return {
+            x: x,
+            y: y
+        };
+    }
     return {
         x: x,
-        y: y
+        y: y,
+        z: z
     };
+}
+//https://gamedev.stackexchange.com/a/18459
+function rayAABBIntersection(lb, rt, ray)
+{
+    let df = {
+        x: 1 / ray.unit.x,
+        y: 1 / ray.unit.y,
+        z: 1 / ray.unit.z
+    };
+    let t1 = (lb.x - ray.from.x) * df.x;
+    let t2 = (rt.x - ray.from.x) * df.x;
+    let t3 = (lb.y - ray.from.y) * df.y;
+    let t4 = (rt.y - ray.from.y) * df.y;
+    let t5 = (lb.z - ray.from.z) * df.z;
+    let t6 = (rt.z - ray.from.z) * df.z;
+    let tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
+    let tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
+    if(tmax < 0 || tmin > tmax)
+    {
+        //dist to intersection is tmax
+        return false;
+    }
+    //dist to intersection is tmin
+    return true;
+}
+function rayRectIntersection(lb, rt, ray)
+{
+    let df = {
+        x: 1 / ray.unit.x,
+        y: 1 / ray.unit.y
+    };
+    let t1 = (lb.x - ray.from.x) * df.x;
+    let t2 = (rt.x - ray.from.x) * df.x;
+    let t3 = (lb.y - ray.from.y) * df.y;
+    let t4 = (rt.y - ray.from.y) * df.y;
+    let tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4));
+    let tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4));
+    if(tmax < 0 || tmin > tmax)
+    {
+        //dist to intersection is tmax
+        return false;
+    }
+    //dist to intersection is tmin
+    return true;
 }

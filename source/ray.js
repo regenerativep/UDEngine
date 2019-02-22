@@ -1,10 +1,10 @@
 class UDRay
 {
-    constructor(a, b, engine)
+    constructor(origin, unitvec, engine)
     {
         this.depth = 0;
-        this.from = a;
-        this.to = b;
+        this.from = origin;
+        this.unit = unitvec;
         this.engine = engine;
         this.exclude = [];
     }

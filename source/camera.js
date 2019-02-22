@@ -18,8 +18,8 @@ class UDCamera
         var halfFov = this.fov / 2;
         var startingDir = this.direction - halfFov;
         let rayVec = {
-            x: Math.cos(startingDir) * this.viewDist,
-            y: Math.sin(startingDir) * this.viewDist
+            x: Math.cos(startingDir),
+            y: Math.sin(startingDir)
         };
         let directionStepDifference = this.fov / width;
         let rotationVec = {
@@ -33,17 +33,8 @@ class UDCamera
         fps_sw.start();
         for(var i = 0; i < width; i++)
         {
-            //https://en.wikipedia.org/wiki/Rotation_matrix#In_two_dimensions
-            //this is so we don't have to recalculate cos and sin functions for every pixel
-            rayVec = {
-                x: (rayVec.x * rotationVec.c) - (rayVec.y * rotationVec.s),
-                y: (rayVec.x * rotationVec.s) + (rayVec.y * rotationVec.c)
-            };
-            let secondPos = {
-                x: this.position.x + rayVec.x,
-                y: this.position.y + rayVec.y
-            };
-            let ray = new UDRay(this.position, secondPos, this.engine);
+            //https://en.wikipedia.org/wiki/Rotation_matrix#In_two_dimensions so we don't have to recalculate cos and sin functions for every pixel
+            let ray = new UDRay(this.position, rayVec, this.engine);
             sw.start();
             var atom = this.engine.fireRayCast(ray);
             var elapsed = sw.stop();
@@ -58,6 +49,10 @@ class UDCamera
                 color = atom.getColor(ray);
             }
             pixArr.push(color);
+            rayVec = {
+                x: (rayVec.x * rotationVec.c) - (rayVec.y * rotationVec.s),
+                y: (rayVec.x * rotationVec.s) + (rayVec.y * rotationVec.c)
+            };
         }
         var max = 0, avg = 0;
         for(var i in elapsedTimes)
