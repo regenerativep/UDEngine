@@ -38,22 +38,20 @@ var Filter = {
             return this;
         },
         pass: function(ray, color, atom) {
-            let targetPos = {
-                x: (ray.to.x - ray.from.x) + atom.position.x,
-                y: (ray.to.y - ray.from.y) + atom.position.y
-            };
-            ray.exclude.push(atom);
-            ray.from = {
-                x: atom.position.x + 1,
-                y: atom.position.y
-            };
-            ray.to = targetPos;
-            let targetAtom = ray.engine.fireRayCast(ray);
-            if(targetAtom == null)
-            {
-                return ray.engine.getBackgroundColor(ray);
-            }
-            return targetAtom.getColor(ray);
+            
+        }
+    },
+    BasicLighting: {
+        create: function(atom) {
+            return this;
+        },
+        pass: function(ray, color, atom) {
+            let distX = (atom.position.x - ray.from.x) ** 2;
+            let distY = (atom.position.y - ray.from.y) ** 2;
+            let distSqr = distX + distY;
+            let lightPercent = Math.min(5000 / distSqr, 1);
+            let newCol = new UDColor(color.hue, color.saturation, color.lightness * lightPercent);
+            return newCol;
         }
     }
 };

@@ -81,7 +81,8 @@ class UDEngine
         node.children.push(this.createNode(node.x + sze.x, node.y + sze.y));
         if(node.atom != null)
         {
-            this.addItem(node, node.atom, depth);
+            let side = inWhichSide(node, depth, node.atom.position);
+            this.getNode(node.children[side]).atom = node.atom;
             node.atom = null;
         }
         if(this.deepestDepth < nextDepth)
@@ -101,7 +102,7 @@ class UDEngine
         }
         return null;
     }
-    addItem(nodeKey, item, depth)
+    addItem(nodeKey, item, depth) //warning: infinite loop if item's position == any other item's position
     {
         if(typeof depth !== "number")
         {
@@ -116,23 +117,29 @@ class UDEngine
             node = this.nodeList[0];
         }
         let currentNode = node;
-        while(currentNode.children != null)
+        let lastNode = currentNode;
+        do
         {
-            this.updateDepthList(depth);
-            let side = inWhichSide(currentNode, this.depthList[depth], item.position);
-            currentNode = this.getNode(currentNode.children[side]);
-            depth++;
+            lastNode = currentNode;
+            if(currentNode.children == null)
+            {
+                if((currentNode.atom != null && currentNode.atom != item) || this.depthList[depth].x > this.maxLeafSize || this.depthList[depth].y > this.maxLeafSize)
+                {
+                    this.split(currentNode, depth);
+                }
+                else if(currentNode.atom == null)
+                {
+                    currentNode.atom = item;
+                }
+            }
+            if(currentNode.children != null)
+            {
+                let side = inWhichSide(currentNode, this.depthList[depth], item.position);
+                currentNode = this.getNode(currentNode.children[side]);
+                depth++;
+            }
         }
-        //todo make this not recursive
-        if(currentNode.atom != null || this.depthList[depth].x > this.maxLeafSize || this.depthList[depth].y > this.maxLeafSize)
-        {
-            this.split(currentNode, depth);
-            this.addItem(currentNode, item, depth); //warning: infinite recursion if item's position == node's item's position
-        }
-        else
-        {
-            currentNode.atom = item;
-        }
+        while(lastNode.children != null);
     }
     updateDepthList(depth)
     {
@@ -149,7 +156,7 @@ class UDEngine
             });
         }
     }
-    fireRayCast(ray, nodeKey, depth) //todo fix this again >:(
+    fireRayCast(ray, nodeKey, depth)
     {
         let node = this.getNode(nodeKey);
         if(typeof node === "undefined" || node == null)

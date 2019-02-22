@@ -115,14 +115,15 @@
                 startMainLoop();
                 eng.setSize(512, 512);
                 /*
-                for(var i = 0; i < 10; i++)
+                let pointCount = 20;
+                for(var i = 0; i < pointCount; i++)
                 {
+                    console.log((i + 1) + " / " + pointCount);
                     var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256));
                     var x = randInt(0, worldWidth), y = randInt(0, worldHeight);
                     var atom = new UDAtom(eng, x, y, color);
                     eng.addItem(atom);
                 }*/
-                
                 function generateCircle(count, radius, xoff, yoff)
                 {
                     for(var i = 0; i < count; i++)
@@ -132,22 +133,23 @@
                         var y = Math.sin(deg) * radius + yoff;
                         var color = new UDColor(360 * i / count, 255, 127);
                         var atom = new UDAtom(eng, x, y, color);
+                        atom.filters.push(Filter.BasicLighting.create(atom));
                         eng.addItem(atom);
                     }
                 }
-                let numCircles = 126;
+                let numCircles = 4;
                 for(let i = 0; i < numCircles; i++)
                 {
                     let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
-                    generateCircle(64, 7, x, y);
+                    generateCircle(256, 16, x, y);
                     console.log("circle " + (i + 1) + " / " + numCircles);
-                }
+                }/*
                 for(let i = 0; i < 1024; i++)
                 {
                     let atom = new UDAtom(eng, 0, i / 4, new UDColor(0, 255, 127));
                     atom.filters.push(Filter.TestRedirect.create(atom));
                     eng.addItem(atom);
-                }
+                }*/
             });
         </script>
         <style>
