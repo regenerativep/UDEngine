@@ -17,6 +17,15 @@ class UDCamera
         while(this.direction < 0) this.direction += Math.PI * 2;
         var halfFov = this.fov / 2;
         var startingDir = this.direction - halfFov;
+        let rayVec = {
+            x: Math.cos(startingDir) * this.viewDist,
+            y: Math.sin(startingDir) * this.viewDist
+        };
+        let directionStepDifference = this.fov / width;
+        let rotationVec = {
+            s: Math.sin(directionStepDifference),
+            c: Math.cos(directionStepDifference)
+        };
         var pixArr = [];
         var sw = new Stopwatch();
         let fps_sw = new Stopwatch();
@@ -24,12 +33,17 @@ class UDCamera
         fps_sw.start();
         for(var i = 0; i < width; i++)
         {
-            var rayDir = startingDir + ((this.fov * i) / width);
-            var rayVec = {
-                x: this.position.x + (Math.cos(rayDir) * this.viewDist),
-                y: this.position.y + (Math.sin(rayDir) * this.viewDist)
+            //https://en.wikipedia.org/wiki/Rotation_matrix#In_two_dimensions
+            //this is so we don't have to recalculate cos and sin functions for every pixel
+            rayVec = {
+                x: (rayVec.x * rotationVec.c) - (rayVec.y * rotationVec.s),
+                y: (rayVec.x * rotationVec.s) + (rayVec.y * rotationVec.c)
             };
-            let ray = new UDRay(this.position, rayVec, this.engine);
+            let secondPos = {
+                x: this.position.x + rayVec.x,
+                y: this.position.y + rayVec.y
+            };
+            let ray = new UDRay(this.position, secondPos, this.engine);
             sw.start();
             var atom = this.engine.fireRayCast(ray);
             var elapsed = sw.stop();
