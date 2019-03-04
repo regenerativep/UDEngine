@@ -9,48 +9,107 @@
             var fps = 60;
             var globalSpeed = 60 / fps;
             var mainLoopInterval;
-            var worldWidth = 512;
-            var worldHeight = 512;
+            var worldWidth = 128;
+            var worldHeight = 128;
+            var worldLength = 128;
+            var viewResolution = {
+                x: 96,
+                y: 96
+            };
             function randInt(from, to)
             {
                 return Math.floor(Math.random() * (to - from)) + from;
             }
-            var keyPresses = {
-                left: false,
-                right: false,
-                up: false,
-                down: false
+            var keys = {
+                left: 37, right: 39, up: 38, down: 40, space: 32, control: 17, a: 65, d: 68, w: 87, s: 83, shift: 16
             };
+            var inputs = {};
+            function addInput(name, key)
+            {
+                inputs[name] = {
+                    key: key,
+                    pressed: false
+                };
+            }
+            function keyDown(name)
+            {
+                return inputs[name].pressed;
+                try
+                {
+                    let pressed = inputs[name].pressed;
+                    return pressed;
+                }
+                finally
+                {
+                    console.log("failed to get input for \"" + name + "\"");
+                    return false;
+                }
+            }
+            addInput("forward", keys.w);
+            addInput("backward", keys.s);
+            addInput("strafeleft", keys.a);
+            addInput("straferight", keys.d);
+            addInput("jump", keys.space);
+            addInput("crouch", keys.shift);
+            addInput("turnleft", keys.left);
+            addInput("turnright", keys.right);
+            addInput("turnup", keys.up);
+            addInput("turndown", keys.down);
             function mainUpdate()
             {
-                //eng.camera.direction += 0.02;
-                if(keyPresses.left)
+                if(keyDown("turnleft"))
                 {
-                    camera.direction -= rotateSpeed * globalSpeed;
+                    camera.direction.yaw -= rotateSpeed * globalSpeed;
                 }
-                if(keyPresses.right)
+                if(keyDown("turnright"))
                 {
-                    camera.direction += rotateSpeed * globalSpeed;
+                    camera.direction.yaw += rotateSpeed * globalSpeed;
                 }
-                if(keyPresses.up)
+                if(keyDown("turnup"))
                 {
-                    camera.position.x += Math.cos(camera.direction) * moveSpeed * globalSpeed;
-                    camera.position.y += Math.sin(camera.direction) * moveSpeed * globalSpeed;
+                    camera.direction.pitch -= rotateSpeed * globalSpeed;
                 }
-                if(keyPresses.down)
+                if(keyDown("turndown"))
                 {
-                    camera.position.x -= Math.cos(camera.direction) * moveSpeed * globalSpeed;
-                    camera.position.y -= Math.sin(camera.direction) * moveSpeed * globalSpeed;
+                    camera.direction.pitch += rotateSpeed * globalSpeed;
+                }
+                if(keyDown("forward"))
+                {
+                    camera.position.x += Math.cos(camera.direction.yaw) * moveSpeed * globalSpeed;
+                    camera.position.y += Math.sin(camera.direction.yaw) * moveSpeed * globalSpeed;
+                }
+                if(keyDown("backward"))
+                {
+                    camera.position.x -= Math.cos(camera.direction.yaw) * moveSpeed * globalSpeed;
+                    camera.position.y -= Math.sin(camera.direction.yaw) * moveSpeed * globalSpeed;
+                }
+                if(keyDown("strafeleft"))
+                {
+                    camera.position.x += Math.cos(camera.direction.yaw - (Math.PI / 2)) * moveSpeed * globalSpeed;
+                    camera.position.y += Math.sin(camera.direction.yaw - (Math.PI / 2)) * moveSpeed * globalSpeed;
+                }
+                if(keyDown("straferight"))
+                {
+                    camera.position.x += Math.cos(camera.direction.yaw + (Math.PI / 2)) * moveSpeed * globalSpeed;
+                    camera.position.y += Math.sin(camera.direction.yaw + (Math.PI / 2)) * moveSpeed * globalSpeed;
+                }
+                if(keyDown("crouch"))
+                {
+                    camera.position.z -= moveSpeed * globalSpeed;
+                }
+                if(keyDown("jump"))
+                {
+                    camera.position.z += moveSpeed * globalSpeed;
                 }
                 rect(eng.ctx, 0, 0, worldWidth, worldHeight, "", "#FFFFFF");
                 //eng.drawWorld();
-                let visualCamRadius = 4, visualCamDirLength = 16;
-                let cx = camera.position.x, cy = camera.position.y, dir = camera.direction;
+                let visualCamRadius = 4, visualCamDirLength = 16, viewDist = 512;
+                let cx = camera.position.x, cy = camera.position.y, dir = camera.direction.yaw;
                 rect(eng.ctx, cx - visualCamRadius, cy - visualCamRadius, cx + visualCamRadius, cy + visualCamRadius, "", "#000000");
                 line(eng.ctx, cx, cy, cx + (Math.cos(dir) * visualCamDirLength), cy + (Math.sin(dir) * visualCamDirLength), "#0000FF");
-                line(eng.ctx, cx, cy, cx + (Math.cos(dir + (camera.fov / 2)) * camera.viewDist), cy + (Math.sin(dir + (camera.fov / 2)) * camera.viewDist), "#0000FF");
-                line(eng.ctx, cx, cy, cx + (Math.cos(dir - (camera.fov / 2)) * camera.viewDist), cy + (Math.sin(dir - (camera.fov / 2)) * camera.viewDist), "#0000FF");
-                camera.draw(512, 32, { x: 0, y: 480 });
+                line(eng.ctx, cx, cy, cx + (Math.cos(dir + (camera.horizontalFov / 2)) * viewDist), cy + (Math.sin(dir + (camera.horizontalFov / 2)) * viewDist), "#0000FF");
+                line(eng.ctx, cx, cy, cx + (Math.cos(dir - (camera.horizontalFov / 2)) * viewDist), cy + (Math.sin(dir - (camera.horizontalFov / 2)) * viewDist), "#0000FF");
+                camera.draw(viewResolution.x, viewResolution.y, { x: 512 - viewResolution.x, y: 512 - viewResolution.y });
             }
             function startMainLoop()
             {
@@ -61,7 +120,7 @@
                 clearInterval(mainLoopInterval);
             }
             window.addEventListener("load", function() {
-                eng = new UDEngine(document.getElementById("container"), worldWidth, worldHeight);
+                eng = new UDEngine(document.getElementById("container"), worldWidth, worldHeight, worldLength);
                 camera = new UDCamera(eng);
                 function setCameraOnClick()
                 {
@@ -70,60 +129,51 @@
                     var angle = parseFloat(document.getElementById("angle").value) * ( Math.PI / 180);
                     camera.position = {
                         x: x,
-                        y: y
+                        y: y,
+                        z: camera.position.z
                     };
-                    camera.direction = angle;
+                    camera.direction.yaw = angle;
                 }
                 document.getElementById("setbutton").addEventListener("click", setCameraOnClick);
                 document.getElementById("updatebutton").addEventListener("click", function() {
                     setCameraOnClick();
                 });
                 document.addEventListener("keydown", function(event) {
-                    switch(event.keyCode)
+                    for(let i in inputs)
                     {
-                        case 37:
-                            keyPresses.left = true;
+                        let input = inputs[i];
+                        if(input.key == event.keyCode)
+                        {
+                            input.pressed = true;
                             break;
-                        case 39:
-                            keyPresses.right = true;
-                            break;
-                        case 38:
-                            keyPresses.up = true;
-                            break;
-                        case 40:
-                            keyPresses.down = true;
-                            break;
+                        }
                     }
                 });
                 document.addEventListener("keyup", function(event) {
-                    switch(event.keyCode)
+                    for(let i in inputs)
                     {
-                        case 37:
-                            keyPresses.left = false;
+                        let input = inputs[i];
+                        if(input.key == event.keyCode)
+                        {
+                            input.pressed = false;
                             break;
-                        case 39:
-                            keyPresses.right = false;
-                            break;
-                        case 38:
-                            keyPresses.up = false;
-                            break;
-                        case 40:
-                            keyPresses.down = false;
-                            break;
+                        }
                     }
                 });
                 startMainLoop();
                 eng.setSize(512, 512);
-                /*
-                let pointCount = 20;
+                
+                let pointCount = 5;
                 for(var i = 0; i < pointCount; i++)
                 {
                     console.log((i + 1) + " / " + pointCount);
-                    var color = new UDColor(randInt(0, 256), randInt(0, 256), randInt(0, 256));
-                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight);
-                    var atom = new UDAtom(eng, x, y, color);
+                    var color = new UDColor(randInt(0, 360), randInt(0, 256), randInt(0, 256));
+                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight), z = 0;//z = randInt(0, worldLength);
+                    var atom = new UDAtom(eng, x, y, z, color);
+                    //console.log(atom);
                     eng.addItem(atom);
-                }*/
+                }
+                /*
                 function generateCircle(count, radius, xoff, yoff)
                 {
                     for(var i = 0; i < count; i++)
@@ -131,8 +181,9 @@
                         var deg = 2 * Math.PI * (i / count);
                         var x = Math.cos(deg) * radius + xoff;
                         var y = Math.sin(deg) * radius + yoff;
+                        var z = 0;
                         var color = new UDColor(360 * i / count, 255, 127);
-                        var atom = new UDAtom(eng, x, y, color);
+                        var atom = new UDAtom(eng, x, y, z, color);
                         atom.filters.push(Filter.BasicLighting.create(atom));
                         eng.addItem(atom);
                     }
@@ -143,12 +194,6 @@
                     let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
                     generateCircle(256, 4, x, y);
                     console.log("circle " + (i + 1) + " / " + numCircles);
-                }/*
-                for(let i = 0; i < 1024; i++)
-                {
-                    let atom = new UDAtom(eng, 0, i / 4, new UDColor(0, 255, 127));
-                    atom.filters.push(Filter.TestRedirect.create(atom));
-                    eng.addItem(atom);
                 }*/
             });
         </script>

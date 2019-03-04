@@ -48,7 +48,8 @@ var Filter = {
         pass: function(ray, color, atom) {
             let distX = (atom.position.x - ray.from.x) ** 2;
             let distY = (atom.position.y - ray.from.y) ** 2;
-            let distSqr = distX + distY;
+            let distZ = (atom.position.z - ray.from.z) ** 2;
+            let distSqr = Math.pow(distX + distY + distZ, 2 / 3);
             let lightPercent = Math.min(5000 / distSqr, 1);
             let newCol = new UDColor(color.hue, color.saturation, color.lightness * lightPercent);
             return newCol;

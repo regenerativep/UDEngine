@@ -1,11 +1,12 @@
 var maxRayDepth = 4;
 class UDAtom
 {
-    constructor(engine, x, y, c)
+    constructor(engine, x, y, z, c)
     {
         this.position = {
             x: x,
-            y: y
+            y: y,
+            z: z
         };
         this.filters = [];
         if(typeof c !== "undefined")

@@ -18,10 +18,18 @@ class UDColor
     {
         return hslToHex1(this.hue, this.saturation, this.lightness);
     }
-    getRgb()
+    getRgb(getObj)
     {
-        var rgbCol = gg_hsl2rgb([this.hue, this.saturation, this.lightness]);
-        return "rgb(" + rgbCol.r + "," + rgbCol.g + "," + rgbCol.b + ")";
+        let rgbCol = gg_hsl2rgb([this.hue, this.saturation, this.lightness]);
+        if(typeof getObj === "boolean" && getObj)
+        {
+            return {
+                r: Math.floor(rgbCol[0] * 255),
+                g: Math.floor(rgbCol[1] * 255),
+                b: Math.floor(rgbCol[2] * 255)
+            };
+        }
+        return "rgb(" + rgbCol[0] * 255 + "," + rgbCol[1] * 255 + "," + rgbCol[2] * 255 + ")";
     }
     getHsl()
     {

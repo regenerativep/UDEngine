@@ -1,7 +1,7 @@
 var defaultSize = { x: 256, y: 256 };
 class UDEngine
 {
-    constructor(canvasContainer, width, height)
+    constructor(canvasContainer, width, height, length)
     {
         if(typeof width !== "number" || typeof height !== "number")
         {
@@ -10,18 +10,19 @@ class UDEngine
         }
         this.width = width;
         this.height = height;
+        this.length = length;
         this.maxLeafSize = 4;
         this.deepestDepth = 0;
         this.currentNodeKey = 0;
         this.maximumPasses = 4;
         this.nodeList = {};
-        this.depthList = [ { x: width, y: height } ];
-        this.createNode(0, 0);
+        this.depthList = [ { x: width, y: height, z: length } ];
+        this.createNode(0, 0, 0);
         this.resetColor = "#DDDDDD";
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
     }
-    drawWorld()
+    drawWorld() //not made for 3d update
     {
         let rectlist = [];
         let treeList = this.getAllChildren(0);
@@ -31,7 +32,7 @@ class UDEngine
             rectlist.push({
                 position: pair.node,
                 size: this.depthList[pair.depth],
-                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null //todo this might need fixing
+                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
             });
         }
         for(let i in rectlist)
@@ -61,9 +62,15 @@ class UDEngine
         }
         return childList;
     }
-    createNode(x, y)
+    createNode(x, y, z)
     {
-        let node = new UDNode(x, y);
+        let node = {
+            x: x,
+            y: y,
+            z: z,
+            atom: null,
+            children: null
+        };
         let key = this.currentNodeKey++;
         this.nodeList[key] = node;
         return key;
@@ -75,10 +82,14 @@ class UDEngine
         this.updateDepthList(nextDepth);
         let sze = this.depthList[nextDepth];
         node.children = [];
-        node.children.push(this.createNode(node.x, node.y));
-        node.children.push(this.createNode(node.x + sze.x, node.y));
-        node.children.push(this.createNode(node.x, node.y + sze.y));
-        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y));
+        node.children.push(this.createNode(node.x, node.y, node.z));
+        node.children.push(this.createNode(node.x + sze.x, node.y, node.z));
+        node.children.push(this.createNode(node.x, node.y + sze.y, node.z));
+        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z));
+        node.children.push(this.createNode(node.x, node.y, node.z + sze.z));
+        node.children.push(this.createNode(node.x + sze.x, node.y, node.z + sze.z));
+        node.children.push(this.createNode(node.x, node.y + sze.y, node.z + sze.z));
+        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z + sze.z));
         if(node.atom != null)
         {
             let side = inWhichSide(node, depth, node.atom.position);
@@ -90,7 +101,7 @@ class UDEngine
             this.deepestDepth = nextDepth;
         }
     }
-    getNode(nodeKey)
+    getNode(nodeKey) //todo get rid of pointers, they're slow
     {
         if(typeof nodeKey === "number")
         {
@@ -123,7 +134,8 @@ class UDEngine
             lastNode = currentNode;
             if(currentNode.children == null)
             {
-                if((currentNode.atom != null && currentNode.atom != item) || this.depthList[depth].x > this.maxLeafSize || this.depthList[depth].y > this.maxLeafSize)
+                let depthSize = this.depthList[depth];
+                if((currentNode.atom != null && currentNode.atom != item))// || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
                 {
                     this.split(currentNode, depth);
                 }
@@ -147,19 +159,20 @@ class UDEngine
         {
             return;
         }
-        for(let i = this.depthList.length; i < depth + 1; i++)
+        for(let i = this.depthList.length; i < depth + 1; i++) //todo hmmm
         {
             let lastDepthSize = this.depthList[i - 1];
             this.depthList.push({
                 x: lastDepthSize.x / 2,
-                y: lastDepthSize.y / 2
+                y: lastDepthSize.y / 2,
+                z: lastDepthSize.z / 2
             });
         }
     }
     fireRayCast(ray, nodeKey, depth)
     {
         let node = this.getNode(nodeKey);
-        if(typeof node === "undefined" || node == null)
+        if(typeof node === "undefined" || node == null) //todo dont do this
         {
             node = this.nodeList[0];
             nodeKey = 0;
@@ -178,7 +191,7 @@ class UDEngine
             if(node.children != null)
             {
                 let side = inWhichSide(node, this.depthList[pair.depth], ray.from);
-                let order = getOrder(side);
+                let order = rayCheckOrders[side];
                 let pos = remainingNodes.length;
                 for(let j in order)
                 {
@@ -197,11 +210,13 @@ class UDEngine
                     {
                         continue;
                     }
+                    let depthSize = this.depthList[pair.depth + 1];
                     let secondPos = {
-                        x: child.x + this.depthList[pair.depth + 1].x,
-                        y: child.y + this.depthList[pair.depth + 1].y
+                        x: child.x + depthSize.x,
+                        y: child.y + depthSize.y,
+                        z: child.z + depthSize.z
                     };
-                    if(rayRectIntersection(child, secondPos, ray))
+                    if(rayAABBIntersection(child, secondPos, ray))
                     {
                         remainingNodes.splice(pos, 0, {
                             depth: pair.depth + 1,
@@ -282,3 +297,30 @@ function getUsableColor(color)
     }
     return color;
 }
+function inWhichSide(pos, size, loc) //todo: division can be optimized
+{
+    var side = 0;
+    if(loc.x > pos.x + (size.x / 2))
+    {
+        side |= 1;
+    }
+    if(loc.y > pos.y + (size.y / 2))
+    {
+        side |= 2;
+    }
+    if(loc.z > pos.z + (size.z / 2))
+    {
+        side |= 4;
+    }
+    return side;
+}
+var rayCheckOrders = [
+    [0, 1, 2, 4, 3, 5, 6, 7],
+    [1, 0, 3, 5, 2, 4, 7, 6],
+    [2, 0, 3, 6, 1, 4, 7, 5],
+    [3, 1, 2, 7, 0, 5, 6, 4],
+    [4, 0, 5, 6, 1, 2, 7, 3],
+    [5, 1, 4, 7, 0, 3, 6, 2],
+    [6, 2, 4, 7, 0, 3, 5, 1],
+    [7, 3, 5, 6, 1, 2, 4, 0]
+];

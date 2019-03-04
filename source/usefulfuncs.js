@@ -85,7 +85,7 @@ function hue2rgb(p, q, t) {
 
  //https://jsperf.com/hsl-to-rgb
 function gg_hsl2rgb(hsl) {
-    var h = hsl[0] / 256, //edited to have / 256
+    var h = hsl[0] / 360,
         s = hsl[1] / 256,
         l = hsl[2] / 256;
     var v, min, sv, sextant, fract, vsf;
@@ -318,4 +318,44 @@ function rayRectIntersection(lb, rt, ray)
     }
     //dist to intersection is tmin
     return true;
+}
+function lengthdir(dir, pit, magnitude)
+{
+    let cpit = Math.cos(pit);
+    return {
+        x: Math.cos(dir) * cpit,
+        y: Math.sin(dir) * cpit,
+        z: Math.sin(pit)
+    };
+}
+function getRotationVector(theta)
+{
+    return {
+        c: Math.cos(theta),
+        s: Math.sin(theta)
+    };
+}
+function rotateVectorX(vector, rotationVector)
+{
+    return {
+        x: vector.x,
+        y: (vector.y * rotationVector.c) - (vector.z * rotationVector.s),
+        z: (vector.y * rotationVector.s) + (vector.z * rotationVector.c)
+    };
+}
+function rotateVectorY(vector, rotationVector)
+{
+    return {
+        x: (vector.x * rotationVector.c) + (vector.z * rotationVector.s),
+        y: vector.y,
+        z: (vector.z * rotationVector.c) - (vector.x * rotationVector.s)
+    };
+}
+function rotateVectorZ(vector, rotationVector)
+{
+    return {
+        x: (vector.x * rotationVector.c) - (vector.y * rotationVector.s),
+        y: (vector.x * rotationVector.s) + (vector.y * rotationVector.c),
+        z: vector.z
+    };
 }
