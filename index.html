@@ -102,13 +102,6 @@
                     camera.position.z += moveSpeed * globalSpeed;
                 }
                 rect(eng.ctx, 0, 0, worldWidth, worldHeight, "", "#FFFFFF");
-                //eng.drawWorld();
-                let visualCamRadius = 4, visualCamDirLength = 16, viewDist = 512;
-                let cx = camera.position.x, cy = camera.position.y, dir = camera.direction.yaw;
-                rect(eng.ctx, cx - visualCamRadius, cy - visualCamRadius, cx + visualCamRadius, cy + visualCamRadius, "", "#000000");
-                line(eng.ctx, cx, cy, cx + (Math.cos(dir) * visualCamDirLength), cy + (Math.sin(dir) * visualCamDirLength), "#0000FF");
-                line(eng.ctx, cx, cy, cx + (Math.cos(dir + (camera.horizontalFov / 2)) * viewDist), cy + (Math.sin(dir + (camera.horizontalFov / 2)) * viewDist), "#0000FF");
-                line(eng.ctx, cx, cy, cx + (Math.cos(dir - (camera.horizontalFov / 2)) * viewDist), cy + (Math.sin(dir - (camera.horizontalFov / 2)) * viewDist), "#0000FF");
                 camera.draw(viewResolution.x, viewResolution.y, { x: 512 - viewResolution.x, y: 512 - viewResolution.y });
             }
             function startMainLoop()
@@ -163,7 +156,7 @@
                 startMainLoop();
                 eng.setSize(512, 512);
                 
-                let pointCount = 5;
+                let pointCount = 20;
                 for(var i = 0; i < pointCount; i++)
                 {
                     console.log((i + 1) + " / " + pointCount);

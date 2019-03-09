@@ -13,11 +13,10 @@ class UDEngine
         this.length = length;
         this.maxLeafSize = 4;
         this.deepestDepth = 0;
-        this.currentNodeKey = 0;
         this.maximumPasses = 4;
-        this.nodeList = {};
+        this.nodeList = [];
         this.depthList = [ { x: width, y: height, z: length } ];
-        this.createNode(0, 0, 0);
+        this.createNode(0, 0, 0, this.depthList[0], 0);
         this.resetColor = "#DDDDDD";
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
@@ -44,13 +43,12 @@ class UDEngine
             }
         }
     }
-    getAllChildren(nodeKey, depth) //don't run this a lot. really slow
+    getAllChildren(node, depth) //don't run this a lot. really slow
     {
         if(typeof depth !== "number")
         {
             depth = 0;
         }
-        let node = this.getNode(nodeKey);
         if(node.children == null)
         {
             return [ { depth: depth, node: node } ];
@@ -62,38 +60,42 @@ class UDEngine
         }
         return childList;
     }
-    createNode(x, y, z)
+    createNode(x, y, z, size, depth)
     {
         let node = {
             x: x,
             y: y,
             z: z,
             atom: null,
-            children: null
+            children: null,
+            secondPos: {
+                x: x + size.x,
+                y: y + size.y,
+                z: z + size.z
+            },
+            depth: depth
         };
-        let key = this.currentNodeKey++;
-        this.nodeList[key] = node;
-        return key;
+        this.nodeList.push(node);
+        return node;
     }
-    split(nodeKey, depth) //depth should be the depth of the given node
+    split(node, depth) //depth should be the depth of the given node
     {
-        let node = this.getNode(nodeKey);
         let nextDepth = depth + 1;
         this.updateDepthList(nextDepth);
         let sze = this.depthList[nextDepth];
         node.children = [];
-        node.children.push(this.createNode(node.x, node.y, node.z));
-        node.children.push(this.createNode(node.x + sze.x, node.y, node.z));
-        node.children.push(this.createNode(node.x, node.y + sze.y, node.z));
-        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z));
-        node.children.push(this.createNode(node.x, node.y, node.z + sze.z));
-        node.children.push(this.createNode(node.x + sze.x, node.y, node.z + sze.z));
-        node.children.push(this.createNode(node.x, node.y + sze.y, node.z + sze.z));
-        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z + sze.z));
+        node.children.push(this.createNode(node.x, node.y, node.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x + sze.x, node.y, node.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x, node.y + sze.y, node.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x, node.y, node.z + sze.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x + sze.x, node.y, node.z + sze.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x, node.y + sze.y, node.z + sze.z, sze, nextDepth));
+        node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z + sze.z, sze, nextDepth));
         if(node.atom != null)
         {
             let side = inWhichSide(node, depth, node.atom.position);
-            this.getNode(node.children[side]).atom = node.atom;
+            node.children[side].atom = node.atom;
             node.atom = null;
         }
         if(this.deepestDepth < nextDepth)
@@ -101,30 +103,16 @@ class UDEngine
             this.deepestDepth = nextDepth;
         }
     }
-    getNode(nodeKey) //todo get rid of pointers, they're slow
-    {
-        if(typeof nodeKey === "number")
-        {
-            return this.nodeList[nodeKey];
-        }
-        if(typeof nodeKey === "object")
-        {
-            return nodeKey; //its *probably* a node
-        }
-        return null;
-    }
-    addItem(nodeKey, item, depth) //warning: infinite loop if item's position == any other item's position
+    addItem(node, item, depth) //warning: infinite loop if item's position == any other item's position
     {
         if(typeof depth !== "number")
         {
             depth = 0;
         }
-        let node = this.getNode(nodeKey);
         if(typeof item === "undefined")
         {
             //we are assuming that we're given the item as the first argument, instead of the node
             item = node;
-            nodeKey = 0;
             node = this.nodeList[0];
         }
         let currentNode = node;
@@ -134,7 +122,7 @@ class UDEngine
             lastNode = currentNode;
             if(currentNode.children == null)
             {
-                let depthSize = this.depthList[depth];
+                //let depthSize = this.depthList[depth];
                 if((currentNode.atom != null && currentNode.atom != item))// || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
                 {
                     this.split(currentNode, depth);
@@ -147,7 +135,7 @@ class UDEngine
             if(currentNode.children != null)
             {
                 let side = inWhichSide(currentNode, this.depthList[depth], item.position);
-                currentNode = this.getNode(currentNode.children[side]);
+                currentNode = currentNode.children[side];
                 depth++;
             }
         }
@@ -169,67 +157,39 @@ class UDEngine
             });
         }
     }
-    fireRayCast(ray, nodeKey, depth)
+    fireRayCast(ray, node, depth)
     {
-        let node = this.getNode(nodeKey);
         if(typeof node === "undefined" || node == null) //todo dont do this
         {
             node = this.nodeList[0];
-            nodeKey = 0;
             depth = 0;
         }
-        if(ray.depth > this.maximumPasses)
-        {
-            return null;
-        }
         ray.depth++;
-        let remainingNodes = [ { depth: depth, node: nodeKey } ];
+        let remainingNodes = [ { depth: depth, node: node } ];
         while(remainingNodes.length > 0)
         {
             let pair = remainingNodes.pop();
-            let node = this.getNode(pair.node);
-            if(node.children != null)
+            if(pair.node.children != null)
             {
-                let side = inWhichSide(node, this.depthList[pair.depth], ray.from);
-                let order = rayCheckOrders[side];
+                let order = rayCheckOrders[inWhichSide(pair.node, this.depthList[pair.depth], ray.from)];
                 let pos = remainingNodes.length;
                 for(let j in order)
                 {
-                    let childKey = node.children[order[j]];
-                    let child = this.getNode(childKey);
-                    let excludeThis = false;
-                    for(let ind in ray.exclude)
-                    {
-                        if(child == ray.exclude[ind] || (child.atom != null && child.atom == ray.exclude[ind]))
-                        {
-                            excludeThis = true;
-                            break;
-                        }
-                    }
-                    if(excludeThis)
-                    {
-                        continue;
-                    }
-                    let depthSize = this.depthList[pair.depth + 1];
-                    let secondPos = {
-                        x: child.x + depthSize.x,
-                        y: child.y + depthSize.y,
-                        z: child.z + depthSize.z
-                    };
-                    if(rayAABBIntersection(child, secondPos, ray))
+                    let child = pair.node.children[order[j]];
+                    if(rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
                     {
                         remainingNodes.splice(pos, 0, {
-                            depth: pair.depth + 1,
-                            node: childKey
+                            depth: child.depth,
+                            node: child
                         });
                     }
                 }
             }
             else
             {
-                if(node.atom != null)
+                if(pair.node.atom != null)
                 {
-                    return node.atom;
+                    return pair.node.atom;
                 }
             }
         }
