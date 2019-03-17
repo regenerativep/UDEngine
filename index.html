@@ -161,9 +161,8 @@
                 {
                     console.log((i + 1) + " / " + pointCount);
                     var color = new UDColor(randInt(0, 360), randInt(0, 256), randInt(0, 256));
-                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight), z = 0;//z = randInt(0, worldLength);
+                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight), z = randInt(0, worldLength);
                     var atom = new UDAtom(eng, x, y, z, color);
-                    //console.log(atom);
                     eng.addItem(atom);
                 }
                 /*

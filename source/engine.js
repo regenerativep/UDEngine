@@ -122,8 +122,8 @@ class UDEngine
             lastNode = currentNode;
             if(currentNode.children == null)
             {
-                //let depthSize = this.depthList[depth];
-                if((currentNode.atom != null && currentNode.atom != item))// || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
+                let depthSize = this.depthList[depth];
+                if((currentNode.atom != null && currentNode.atom != item) || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
                 {
                     this.split(currentNode, depth);
                 }
@@ -165,31 +165,28 @@ class UDEngine
             depth = 0;
         }
         ray.depth++;
-        let remainingNodes = [ { depth: depth, node: node } ];
+        let remainingNodes = [ node ];
         while(remainingNodes.length > 0)
         {
-            let pair = remainingNodes.pop();
-            if(pair.node.children != null)
+            let currentNode = remainingNodes.pop();
+            if(currentNode.children != null)
             {
-                let order = rayCheckOrders[inWhichSide(pair.node, this.depthList[pair.depth], ray.from)];
+                let order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
                 let pos = remainingNodes.length;
                 for(let j in order)
                 {
-                    let child = pair.node.children[order[j]];
+                    let child = currentNode.children[order[j]];
                     if(rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
                     {
-                        remainingNodes.splice(pos, 0, {
-                            depth: child.depth,
-                            node: child
-                        });
+                        remainingNodes.splice(pos, 0, child);
                     }
                 }
             }
             else
             {
-                if(pair.node.atom != null)
+                if(currentNode.atom != null)
                 {
-                    return pair.node.atom;
+                    return currentNode.atom;
                 }
             }
         }
