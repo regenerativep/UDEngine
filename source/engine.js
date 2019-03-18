@@ -136,7 +136,6 @@ class UDEngine
     }
     fireRayCast(ray, node)
     {
-        ray.depth++;
         var remainingNodes = [ node ];
         while(remainingNodes.length > 0)
         {
@@ -145,14 +144,21 @@ class UDEngine
             {
                 var order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
                 var pos = remainingNodes.length;
-                for(var j in order)
+                //var doContinue = false;
+                for(var j = order.length - 1; j >= 0; j--)
                 {
                     var child = currentNode.children[order[j]];
                     if(rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
                     {
-                        remainingNodes.splice(pos, 0, child);
+                        remainingNodes.splice(pos++, 0, child);
+                        /*if(child.atom != null)
+                        {
+                            doContinue = true;
+                            break;
+                        }*/
                     }
                 }
+                //if(doContinue) continue;
             }
             else
             {

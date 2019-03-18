@@ -16,13 +16,14 @@ class UDAtom
     }
     getColor(ray)
     {
+        /*
         if(ray.depth > maxRayDepth)
         {
             if(this.filters.length > 0 && this.filters[0] == Filter.SolidColor)
             {
                 return this.filters[0].pass(ray, null, this);
             }
-        }
+        }*/
         var color = null;
         for(var i = 0; i < this.filters.length; i++)
         {
