@@ -18,25 +18,26 @@ class UDEngine
         this.depthList = [ { x: width, y: height, z: length } ];
         this.createNode(0, 0, 0, this.depthList[0], 0);
         this.resetColor = "#DDDDDD";
+        this.backgroundColor = new UDColor(0, 0, 0);
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
     }
     drawWorld() //not made for 3d update
     {
-        let rectlist = [];
-        let treeList = this.getAllChildren(0);
+        var rectlist = [];
+        var treeList = this.getAllChildren(0);
         for(var i = 0; i < treeList.length; i++)
         {
-            let pair = treeList[i];
+            var pair = treeList[i];
             rectlist.push({
                 position: pair.node,
                 size: this.depthList[pair.depth],
                 color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
             });
         }
-        for(let i in rectlist)
+        for(var i in rectlist)
         {
-            let r = rectlist[i];
+            var r = rectlist[i];
             if(r.color != null)
             {
                 rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
@@ -53,8 +54,8 @@ class UDEngine
         {
             return [ { depth: depth, node: node } ];
         }
-        let childList = [];
-        for(let i in node.children)
+        var childList = [];
+        for(var i in node.children)
         {
             childList.push(...this.getAllChildren(node.children[i], depth + 1));
         }
@@ -62,7 +63,7 @@ class UDEngine
     }
     createNode(x, y, z, size, depth)
     {
-        let node = {
+        var node = {
             x: x,
             y: y,
             z: z,
@@ -80,9 +81,9 @@ class UDEngine
     }
     split(node, depth) //depth should be the depth of the given node
     {
-        let nextDepth = depth + 1;
+        var nextDepth = depth + 1;
         this.updateDepthList(nextDepth);
-        let sze = this.depthList[nextDepth];
+        var sze = this.depthList[nextDepth];
         node.children = [];
         node.children.push(this.createNode(node.x, node.y, node.z, sze, nextDepth));
         node.children.push(this.createNode(node.x + sze.x, node.y, node.z, sze, nextDepth));
@@ -94,7 +95,7 @@ class UDEngine
         node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z + sze.z, sze, nextDepth));
         if(node.atom != null)
         {
-            let side = inWhichSide(node, depth, node.atom.position);
+            var side = inWhichSide(node, depth, node.atom.position);
             node.children[side].atom = node.atom;
             node.atom = null;
         }
@@ -115,14 +116,14 @@ class UDEngine
             item = node;
             node = this.nodeList[0];
         }
-        let currentNode = node;
-        let lastNode = currentNode;
+        var currentNode = node;
+        var lastNode = currentNode;
         do
         {
             lastNode = currentNode;
             if(currentNode.children == null)
             {
-                let depthSize = this.depthList[depth];
+                var depthSize = this.depthList[depth];
                 if((currentNode.atom != null && currentNode.atom != item) || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
                 {
                     this.split(currentNode, depth);
@@ -134,7 +135,7 @@ class UDEngine
             }
             if(currentNode.children != null)
             {
-                let side = inWhichSide(currentNode, this.depthList[depth], item.position);
+                var side = inWhichSide(currentNode, this.depthList[depth], item.position);
                 currentNode = currentNode.children[side];
                 depth++;
             }
@@ -147,9 +148,9 @@ class UDEngine
         {
             return;
         }
-        for(let i = this.depthList.length; i < depth + 1; i++) //todo hmmm
+        for(var i = this.depthList.length; i < depth + 1; i++) //todo hmmm
         {
-            let lastDepthSize = this.depthList[i - 1];
+            var lastDepthSize = this.depthList[i - 1];
             this.depthList.push({
                 x: lastDepthSize.x / 2,
                 y: lastDepthSize.y / 2,
@@ -165,17 +166,17 @@ class UDEngine
             depth = 0;
         }
         ray.depth++;
-        let remainingNodes = [ node ];
+        var remainingNodes = [ node ];
         while(remainingNodes.length > 0)
         {
-            let currentNode = remainingNodes.pop();
+            var currentNode = remainingNodes.pop();
             if(currentNode.children != null)
             {
-                let order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
-                let pos = remainingNodes.length;
-                for(let j in order)
+                var order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
+                var pos = remainingNodes.length;
+                for(var j in order)
                 {
-                    let child = currentNode.children[order[j]];
+                    var child = currentNode.children[order[j]];
                     if(rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
                     {
                         remainingNodes.splice(pos, 0, child);

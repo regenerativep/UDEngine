@@ -278,19 +278,19 @@ function p(x, y, z) //makes things a little bit quicker to type in console and s
 //https://gamedev.stackexchange.com/a/18459
 function rayAABBIntersection(lb, rt, ray)
 {
-    let df = {
+    var df = {
         x: 1 / ray.unit.x,
         y: 1 / ray.unit.y,
         z: 1 / ray.unit.z
     };
-    let t1 = (lb.x - ray.from.x) * df.x;
-    let t2 = (rt.x - ray.from.x) * df.x;
-    let t3 = (lb.y - ray.from.y) * df.y;
-    let t4 = (rt.y - ray.from.y) * df.y;
-    let t5 = (lb.z - ray.from.z) * df.z;
-    let t6 = (rt.z - ray.from.z) * df.z;
-    let tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
-    let tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
+    var t1 = (lb.x - ray.from.x) * df.x;
+    var t2 = (rt.x - ray.from.x) * df.x;
+    var t3 = (lb.y - ray.from.y) * df.y;
+    var t4 = (rt.y - ray.from.y) * df.y;
+    var t5 = (lb.z - ray.from.z) * df.z;
+    var t6 = (rt.z - ray.from.z) * df.z;
+    var tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
+    var tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
     if(tmax < 0 || tmin > tmax)
     {
         //dist to intersection is tmax
@@ -301,16 +301,16 @@ function rayAABBIntersection(lb, rt, ray)
 }
 function rayRectIntersection(lb, rt, ray)
 {
-    let df = {
+    var df = {
         x: 1 / ray.unit.x,
         y: 1 / ray.unit.y
     };
-    let t1 = (lb.x - ray.from.x) * df.x;
-    let t2 = (rt.x - ray.from.x) * df.x;
-    let t3 = (lb.y - ray.from.y) * df.y;
-    let t4 = (rt.y - ray.from.y) * df.y;
-    let tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4));
-    let tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4));
+    var t1 = (lb.x - ray.from.x) * df.x;
+    var t2 = (rt.x - ray.from.x) * df.x;
+    var t3 = (lb.y - ray.from.y) * df.y;
+    var t4 = (rt.y - ray.from.y) * df.y;
+    var tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4));
+    var tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4));
     if(tmax < 0 || tmin > tmax)
     {
         //dist to intersection is tmax
@@ -321,7 +321,7 @@ function rayRectIntersection(lb, rt, ray)
 }
 function lengthdir(dir, pit, magnitude)
 {
-    let cpit = Math.cos(pit);
+    var cpit = Math.cos(pit);
     return {
         x: Math.cos(dir) * cpit,
         y: Math.sin(dir) * cpit,
@@ -333,6 +333,14 @@ function getRotationVector(theta)
     return {
         c: Math.cos(theta),
         s: Math.sin(theta)
+    };
+}
+function copyVector(vector)
+{
+    return {
+        x: vector.x,
+        y: vector.y,
+        z: vector.z
     };
 }
 function rotateVectorX(vector, rotationVector)

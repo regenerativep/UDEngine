@@ -19,8 +19,8 @@ var Filter = {
                 opacity = atom.opacity;
             }
             ray.push(atom);
-            let targetAtom = ray.engine.fireRayCast(ray);
-            let targetColor;
+            var targetAtom = ray.engine.fireRayCast(ray);
+            var targetColor;
             if(targetAtom == null)
             {
                 targetColor = ray.engine.getBackgroundColor(ray);
@@ -46,12 +46,12 @@ var Filter = {
             return this;
         },
         pass: function(ray, color, atom) {
-            let distX = (atom.position.x - ray.from.x) ** 2;
-            let distY = (atom.position.y - ray.from.y) ** 2;
-            let distZ = (atom.position.z - ray.from.z) ** 2;
-            let distSqr = Math.pow(distX + distY + distZ, 2 / 3);
-            let lightPercent = Math.min(5000 / distSqr, 1);
-            let newCol = new UDColor(color.hue, color.saturation, color.lightness * lightPercent);
+            var distX = (atom.position.x - ray.from.x) ** 2;
+            var distY = (atom.position.y - ray.from.y) ** 2;
+            var distZ = (atom.position.z - ray.from.z) ** 2;
+            var distSqr = Math.pow(distX + distY + distZ, 2 / 3);
+            var lightPercent = Math.min(5000 / distSqr, 1);
+            var newCol = new UDColor(color.hue, color.saturation, color.lightness * lightPercent);
             return newCol;
         }
     }

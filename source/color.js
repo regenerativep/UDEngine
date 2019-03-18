@@ -20,7 +20,7 @@ class UDColor
     }
     getRgb(getObj)
     {
-        let rgbCol = gg_hsl2rgb([this.hue, this.saturation, this.lightness]);
+        var rgbCol = gg_hsl2rgb([this.hue, this.saturation, this.lightness]);
         if(typeof getObj === "boolean" && getObj)
         {
             return {

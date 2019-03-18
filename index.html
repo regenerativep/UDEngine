@@ -36,7 +36,7 @@
                 return inputs[name].pressed;
                 try
                 {
-                    let pressed = inputs[name].pressed;
+                    var pressed = inputs[name].pressed;
                     return pressed;
                 }
                 finally
@@ -132,9 +132,9 @@
                     setCameraOnClick();
                 });
                 document.addEventListener("keydown", function(event) {
-                    for(let i in inputs)
+                    for(var i in inputs)
                     {
-                        let input = inputs[i];
+                        var input = inputs[i];
                         if(input.key == event.keyCode)
                         {
                             input.pressed = true;
@@ -143,9 +143,9 @@
                     }
                 });
                 document.addEventListener("keyup", function(event) {
-                    for(let i in inputs)
+                    for(var i in inputs)
                     {
-                        let input = inputs[i];
+                        var input = inputs[i];
                         if(input.key == event.keyCode)
                         {
                             input.pressed = false;
@@ -156,7 +156,7 @@
                 startMainLoop();
                 eng.setSize(512, 512);
                 
-                let pointCount = 20;
+                var pointCount = 20;
                 for(var i = 0; i < pointCount; i++)
                 {
                     console.log((i + 1) + " / " + pointCount);
@@ -180,10 +180,10 @@
                         eng.addItem(atom);
                     }
                 }
-                let numCircles = 128;
-                for(let i = 0; i < numCircles; i++)
+                var numCircles = 128;
+                for(var i = 0; i < numCircles; i++)
                 {
-                    let x = randInt(0, worldWidth), y = randInt(0, worldHeight);
+                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight);
                     generateCircle(256, 4, x, y);
                     console.log("circle " + (i + 1) + " / " + numCircles);
                 }*/

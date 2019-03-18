@@ -22,38 +22,37 @@ class UDCamera
         while(this.direction.pitch > Math.PI) this.direction.pitch -= Math.PI * 2;
         while(this.direction.pitch <= -Math.PI) this.direction.pitch += Math.PI * 2;
         //todo compress this a bit
-        let halfHorizFov = this.horizontalFov / 2;
-        let halfVertFov = this.verticalFov / 2;
-        let startingYaw = this.direction.yaw - halfHorizFov;
-        let startingPit = this.direction.pitch - halfVertFov;
-        let startPitRotationVector = getRotationVector(startingPit);
-        let startYawRotationVector = getRotationVector(startingYaw);
-        let leftVec = rotateVectorY(
+        var halfHorizFov = this.horizontalFov / 2;
+        var halfVertFov = this.verticalFov / 2;
+        var startingYaw = this.direction.yaw - halfHorizFov;
+        var startingPit = this.direction.pitch - halfVertFov;
+        var startPitRotationVector = getRotationVector(startingPit);
+        var startYawRotationVector = getRotationVector(startingYaw);
+        var leftVec = rotateVectorY(
             { x: 1, y: 0, z: 0 },
             startPitRotationVector
         );
-        let yawStepDifference = this.horizontalFov / width;
-        let pitStepDifference = this.verticalFov / height;
-        let yawStepRotationVector = getRotationVector(yawStepDifference);
-        let pitStepRotationVector = getRotationVector(pitStepDifference);
-        let pixArray = []; //todo directly write to imageData
-        for(let j = 0; j < height; j++)
+        var yawStepDifference = this.horizontalFov / width;
+        var pitStepDifference = this.verticalFov / height;
+        var yawStepRotationVector = getRotationVector(yawStepDifference);
+        var pitStepRotationVector = getRotationVector(pitStepDifference);
+        var pixArray = []; //todo directly write to imageData
+        for(var j = 0; j < height; j++)
         {
-            let rowVec = rotateVectorZ(leftVec, startYawRotationVector);
-            let row = [];
-            for(let i = 0; i < width; i++)
+            var rowVec = rotateVectorZ(leftVec, startYawRotationVector);
+            var row = [];
+            for(var i = 0; i < width; i++)
             {
-                let ray = new UDRay(this.position, rowVec, this.engine);
-                //let ray = new UDRay(this.position, lengthdir(startingYaw + (i * yawStepDifference), startingPit + (j * pitStepDifference), 1), this.engine);
-                let atom = this.engine.fireRayCast(ray);
-                let color;
+                var ray = new UDRay(this.position, rowVec, this.engine);
+                //var ray = new UDRay(this.position, lengthdir(startingYaw + (i * yawStepDifference), startingPit + (j * pitStepDifference), 1), this.engine);
+                var atom = this.engine.fireRayCast(ray);
+                var color;
                 if(atom == null)
                 {
-                    color = this.engine.getBackgroundColor(ray);
+                    color = this.engine.backgroundColor;//.getBackgroundColor(ray);
                 }
                 else
                 {
-                    //color = atom.getColor(ray);
                     color = atom.color;
                 }
                 row.push(color);
@@ -67,17 +66,17 @@ class UDCamera
     draw(width, height, offset)
     {
         var pixels = this.getPixelArray(width, height);
-        let imageData = this.engine.ctx.createImageData(width, height);
-        let ind = 0;
-        for(let i in pixels)
+        var imageData = this.engine.ctx.createImageData(width, height);
+        var ind = 0;
+        for(var i in pixels)
         {
-            let row = pixels[i];
-            for(let j in row)
+            var row = pixels[i];
+            for(var j in row)
             {
                 var col = row[j];
                 if(typeof col !== "undefined" && col != null)
                 {
-                    let rgb = col.getRgb(true);
+                    var rgb = col.getRgb(true);
                     imageData.data[ind] = rgb.r;
                     imageData.data[ind + 1] = rgb.g;
                     imageData.data[ind + 2] = rgb.b;
