@@ -278,17 +278,15 @@ function p(x, y, z) //makes things a little bit quicker to type in console and s
 //https://gamedev.stackexchange.com/a/18459
 function rayAABBIntersection(lb, rt, ray)
 {
-    var df = {
-        x: 1 / ray.unit.x,
-        y: 1 / ray.unit.y,
-        z: 1 / ray.unit.z
-    };
-    var t1 = (lb.x - ray.from.x) * df.x;
-    var t2 = (rt.x - ray.from.x) * df.x;
-    var t3 = (lb.y - ray.from.y) * df.y;
-    var t4 = (rt.y - ray.from.y) * df.y;
-    var t5 = (lb.z - ray.from.z) * df.z;
-    var t6 = (rt.z - ray.from.z) * df.z;
+    var dfx = 1 / ray.unit.x;
+    var dfy = 1 / ray.unit.y;
+    var dfz = 1 / ray.unit.z;
+    var t1 = (lb.x - ray.from.x) * dfx;
+    var t2 = (rt.x - ray.from.x) * dfx;
+    var t3 = (lb.y - ray.from.y) * dfy;
+    var t4 = (rt.y - ray.from.y) * dfy;
+    var t5 = (lb.z - ray.from.z) * dfz;
+    var t6 = (rt.z - ray.from.z) * dfz;
     var tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
     var tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
     if(tmax < 0 || tmin > tmax)
@@ -345,25 +343,22 @@ function copyVector(vector)
 }
 function rotateVectorX(vector, rotationVector)
 {
-    return {
-        x: vector.x,
-        y: (vector.y * rotationVector.c) - (vector.z * rotationVector.s),
-        z: (vector.y * rotationVector.s) + (vector.z * rotationVector.c)
-    };
+    var ny = (vector.y * rotationVector.c) - (vector.z * rotationVector.s);
+    var nz = (vector.y * rotationVector.s) + (vector.z * rotationVector.c);
+    vector.y = ny;
+    vector.z = nz;
 }
 function rotateVectorY(vector, rotationVector)
 {
-    return {
-        x: (vector.x * rotationVector.c) + (vector.z * rotationVector.s),
-        y: vector.y,
-        z: (vector.z * rotationVector.c) - (vector.x * rotationVector.s)
-    };
+    var nx = (vector.x * rotationVector.c) + (vector.z * rotationVector.s);
+    var nz = (vector.z * rotationVector.c) - (vector.x * rotationVector.s);
+    vector.x = nx;
+    vector.z = nz;
 }
 function rotateVectorZ(vector, rotationVector)
 {
-    return {
-        x: (vector.x * rotationVector.c) - (vector.y * rotationVector.s),
-        y: (vector.x * rotationVector.s) + (vector.y * rotationVector.c),
-        z: vector.z
-    };
+    var nx = (vector.x * rotationVector.c) - (vector.y * rotationVector.s);
+    var ny = (vector.x * rotationVector.s) + (vector.y * rotationVector.c);
+    vector.x = nx;
+    vector.y = ny;
 }

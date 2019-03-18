@@ -1,7 +1,7 @@
 var defaultSize = { x: 256, y: 256 };
 class UDEngine
 {
-    constructor(canvasContainer, width, height, length)
+    constructor(width, height, length)
     {
         if(typeof width !== "number" || typeof height !== "number")
         {
@@ -19,30 +19,6 @@ class UDEngine
         this.createNode(0, 0, 0, this.depthList[0], 0);
         this.resetColor = "#DDDDDD";
         this.backgroundColor = new UDColor(0, 0, 0);
-        this.canvas = document.createElement("canvas");
-        canvasContainer.appendChild(this.canvas);
-    }
-    drawWorld() //not made for 3d update
-    {
-        var rectlist = [];
-        var treeList = this.getAllChildren(0);
-        for(var i = 0; i < treeList.length; i++)
-        {
-            var pair = treeList[i];
-            rectlist.push({
-                position: pair.node,
-                size: this.depthList[pair.depth],
-                color: pair.node.atom != null ? pair.node.atom.getColor(new UDRay({x: 0, y: 0}, {x: 0, y: 0}, this)) : null
-            });
-        }
-        for(var i in rectlist)
-        {
-            var r = rectlist[i];
-            if(r.color != null)
-            {
-                rect(this.ctx, r.position.x, r.position.y, r.position.x + r.size.x, r.position.y + r.size.y, "", r.color);
-            }
-        }
     }
     getAllChildren(node, depth) //don't run this a lot. really slow
     {
@@ -158,13 +134,8 @@ class UDEngine
             });
         }
     }
-    fireRayCast(ray, node, depth)
+    fireRayCast(ray, node)
     {
-        if(typeof node === "undefined" || node == null) //todo dont do this
-        {
-            node = this.nodeList[0];
-            depth = 0;
-        }
         ray.depth++;
         var remainingNodes = [ node ];
         while(remainingNodes.length > 0)
@@ -192,16 +163,6 @@ class UDEngine
             }
         }
         return null;
-    }
-    setSize(width, height)
-    {
-        this.width = width;
-        this.height = height;
-        this.canvas.width = width;
-        this.canvas.height = height;
-        this.ctx = this.canvas.getContext("2d");
-        this.ctx.fillStyle = this.resetColor;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     getBackgroundColor(ray)
     {

@@ -101,8 +101,12 @@
                 {
                     camera.position.z += moveSpeed * globalSpeed;
                 }
-                rect(eng.ctx, 0, 0, worldWidth, worldHeight, "", "#FFFFFF");
-                camera.draw(viewResolution.x, viewResolution.y, { x: 512 - viewResolution.x, y: 512 - viewResolution.y });
+                if(typeof camera.ctx !== "undefined" && camera.ctx != null) 
+                {
+                    rect(camera.ctx, 0, 0, worldWidth, worldHeight, "", "#FFFFFF");
+                }
+                var imageData = camera.getPixels(viewResolution.x, viewResolution.y);
+                camera.ctx.putImageData(imageData, 0, 0);
             }
             function startMainLoop()
             {
@@ -113,8 +117,8 @@
                 clearInterval(mainLoopInterval);
             }
             window.addEventListener("load", function() {
-                eng = new UDEngine(document.getElementById("container"), worldWidth, worldHeight, worldLength);
-                camera = new UDCamera(eng);
+                eng = new UDEngine(worldWidth, worldHeight, worldLength);
+                camera = new UDCamera(eng, document.getElementById("container"));
                 function setCameraOnClick()
                 {
                     var x = parseInt(document.getElementById("xval").value);
@@ -154,7 +158,6 @@
                     }
                 });
                 startMainLoop();
-                eng.setSize(512, 512);
                 
                 var pointCount = 20;
                 for(var i = 0; i < pointCount; i++)

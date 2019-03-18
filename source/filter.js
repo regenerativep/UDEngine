@@ -19,7 +19,7 @@ var Filter = {
                 opacity = atom.opacity;
             }
             ray.push(atom);
-            var targetAtom = ray.engine.fireRayCast(ray);
+            var targetAtom = ray.engine.fireRayCast(ray, ray.engine.nodeList[0]);
             var targetColor;
             if(targetAtom == null)
             {
