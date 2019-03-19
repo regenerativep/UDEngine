@@ -36,6 +36,7 @@ class UDCamera
         this.ctx.fillStyle = this.resetColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.imageData = this.ctx.createImageData(width, height);
+        this.cameraPattern = new CameraPatternFisheye(width, height, this.horizontalFov, this.verticalFov);
     }
     getPixels(width, height)
     {
@@ -43,19 +44,14 @@ class UDCamera
         {
             this.setSize(width, height);
         }
+        this.cameraPattern.reset(this.direction.yaw, this.direction.pitch);
         this.fixDirections();
-        var startYawRotationVector = getRotationVector(this.direction.yaw - this.horizontalFov / 2);
-        var leftVec = { x: 1, y: 0, z: 0 }
-        rotateVectorY(leftVec, getRotationVector(this.direction.pitch - this.verticalFov / 2));
-        var yawStepRotationVector = getRotationVector(this.horizontalFov / width);
-        var pitStepRotationVector = getRotationVector(this.verticalFov / height);
         var ind = 0;
         for(var j = 0; j < height; j++)
         {
-            var rowVec = copyVector(leftVec);
-            rotateVectorZ(rowVec, startYawRotationVector);
             for(var i = 0; i < width; i++)
             {
+                var rowVec = this.cameraPattern.getNext();
                 var ray = new UDRay(this.position, rowVec, this.engine);
                 //var ray = new UDRay(this.position, lengthdir(startingYaw + (i * yawStepDifference), startingPit + (j * pitStepDifference), 1), this.engine);
                 var atom = this.engine.fireRayCast(ray, this.engine.nodeList[0]);
@@ -73,9 +69,7 @@ class UDCamera
                 this.imageData.data[ind++] = rgb.g;
                 this.imageData.data[ind++] = rgb.b;
                 this.imageData.data[ind++] = 255;
-                rotateVectorZ(rowVec, yawStepRotationVector);
             }
-            rotateVectorY(leftVec, pitStepRotationVector);
         }
         return this.imageData;
     }
