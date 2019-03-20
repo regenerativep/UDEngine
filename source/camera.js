@@ -13,7 +13,7 @@ class UDCamera
             pitch: 0
         }; //radians
         this.horizontalFov = Math.PI / 2;
-        this.verticalFov = Math.PI / 3;
+        this.verticalFov = Math.PI / 2;
         this.lastWidth = 0;
         this.lastHeight = 0;
         this.canvas = document.createElement("canvas");
@@ -47,29 +47,25 @@ class UDCamera
         this.cameraPattern.reset(this.direction.yaw, this.direction.pitch);
         this.fixDirections();
         var ind = 0;
-        for(var j = 0; j < height; j++)
+        while(this.cameraPattern.active)
         {
-            for(var i = 0; i < width; i++)
+            var rowVec = this.cameraPattern.getNext();
+            var ray = new UDRay(this.position, rowVec, this.engine);
+            var atom = this.engine.fireRayCast(ray, this.engine.topNode);
+            var color;
+            if(atom == null)
             {
-                var rowVec = this.cameraPattern.getNext();
-                var ray = new UDRay(this.position, rowVec, this.engine);
-                //var ray = new UDRay(this.position, lengthdir(startingYaw + (i * yawStepDifference), startingPit + (j * pitStepDifference), 1), this.engine);
-                var atom = this.engine.fireRayCast(ray, this.engine.nodeList[0]);
-                var color;
-                if(atom == null)
-                {
-                    color = this.engine.backgroundColor;
-                }
-                else
-                {
-                    color = atom.color;
-                }
-                var rgb = color.getRgb(true);
-                this.imageData.data[ind++] = rgb.r;
-                this.imageData.data[ind++] = rgb.g;
-                this.imageData.data[ind++] = rgb.b;
-                this.imageData.data[ind++] = 255;
+                color = this.engine.backgroundColor;
             }
+            else
+            {
+                color = atom.color;
+            }
+            var rgb = color.getRgb(true);
+            this.imageData.data[ind++] = rgb.r;
+            this.imageData.data[ind++] = rgb.g;
+            this.imageData.data[ind++] = rgb.b;
+            this.imageData.data[ind++] = 255;
         }
         return this.imageData;
     }

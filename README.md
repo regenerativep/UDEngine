@@ -1,5 +1,5 @@
 # UDEngine
-trying to make an unlimited detail engine because i dont see how it can be that hard to make
+it can't be that hard to make a revolutionary graphics engine within a browser, right?
 
 
 this is a (log n) searching algorithm

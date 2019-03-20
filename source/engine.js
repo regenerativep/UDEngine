@@ -11,12 +11,11 @@ class UDEngine
         this.width = width;
         this.height = height;
         this.length = length;
-        this.maxLeafSize = 4;
+        this.maxLeafSize = 1;
         this.deepestDepth = 0;
         this.maximumPasses = 4;
-        this.nodeList = [];
         this.depthList = [ { x: width, y: height, z: length } ];
-        this.createNode(0, 0, 0, this.depthList[0], 0);
+        this.topNode = this.createNode(0, 0, 0, this.depthList[0], 0);
         this.resetColor = "#DDDDDD";
         this.backgroundColor = new UDColor(0, 0, 0);
     }
@@ -39,7 +38,7 @@ class UDEngine
     }
     createNode(x, y, z, size, depth)
     {
-        var node = {
+        return {
             x: x,
             y: y,
             z: z,
@@ -52,8 +51,6 @@ class UDEngine
             },
             depth: depth
         };
-        this.nodeList.push(node);
-        return node;
     }
     split(node, depth) //depth should be the depth of the given node
     {
@@ -90,7 +87,7 @@ class UDEngine
         {
             //we are assuming that we're given the item as the first argument, instead of the node
             item = node;
-            node = this.nodeList[0];
+            node = this.topNode;
         }
         var currentNode = node;
         var lastNode = currentNode;
@@ -136,29 +133,28 @@ class UDEngine
     }
     fireRayCast(ray, node)
     {
-        var remainingNodes = [ node ];
-        while(remainingNodes.length > 0)
+        var head = { //linked list
+            item: node,
+            next: null
+        };
+        while(head != null)
         {
-            var currentNode = remainingNodes.pop();
+            var currentNode = head.item;
+            head = head.next;
             if(currentNode.children != null)
             {
                 var order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
-                var pos = remainingNodes.length;
-                //var doContinue = false;
                 for(var j = order.length - 1; j >= 0; j--)
                 {
                     var child = currentNode.children[order[j]];
-                    if(rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
+                    if((child.atom != null || child.children != null) && rayAABBIntersection(child, child.secondPos, ray)) //warning: secondPos may be useful for now, but i may need to get rid of it for memory in the future
                     {
-                        remainingNodes.splice(pos++, 0, child);
-                        /*if(child.atom != null)
-                        {
-                            doContinue = true;
-                            break;
-                        }*/
+                        head = {
+                            item: child,
+                            next: head
+                        };
                     }
                 }
-                //if(doContinue) continue;
             }
             else
             {

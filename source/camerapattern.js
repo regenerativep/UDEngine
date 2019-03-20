@@ -1,13 +1,14 @@
 var CameraPatternFisheye = (function() {
     function CameraPatternFisheye(width, height, horizFov, vertiFov)
     {
-        this.c = 0; //x
-        this.r = 0; //y
+        this.c = 0; //y //ok so i messed this up, the columns measures y, and the rows measure x. todo this
+        this.r = 0; //x
         this.horizontalFov = horizFov;
         this.verticalFov = vertiFov;
         this.width = width;
         this.height = height;
         this.updateX = false;
+        this.active = false;
     }
     CameraPatternFisheye.prototype.getNext = function() {
         if(this.updateX)
@@ -22,6 +23,10 @@ var CameraPatternFisheye = (function() {
                 this.updateX = false;
                 this.r = 0;
                 this.c++;
+                if(this.c >= this.height)
+                {
+                    this.active = false;
+                }
                 rotateVectorY(this.leftVec, this.pitStepRotationVector);
             }
         }
@@ -42,6 +47,7 @@ var CameraPatternFisheye = (function() {
         this.yawStepRotationVector = getRotationVector(this.horizontalFov / this.width);
         this.pitStepRotationVector = getRotationVector(this.verticalFov / this.height);
         this.updateX = false;
+        this.active = true;
     };
     return CameraPatternFisheye;
 }());
