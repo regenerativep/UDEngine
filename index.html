@@ -4,14 +4,11 @@
         <meta charset="UTF-8">
         <script src="./engine.js"></script>
         <script>
-            var eng, camera;
+            var eng, camera, mainLoopInterval;
             var rotateSpeed = 0.03, moveSpeed = 1;
             var fps = 60;
             var globalSpeed = 60 / fps;
-            var mainLoopInterval;
-            var worldWidth = 128;
-            var worldHeight = 128;
-            var worldLength = 128;
+            var worldWidth = 128, worldHeight = 128, worldLength = 128;
             var viewResolution = {
                 x: 128,
                 y: 128
@@ -33,17 +30,7 @@
             }
             function keyDown(name)
             {
-                return inputs[name].pressed;
-                try
-                {
-                    var pressed = inputs[name].pressed;
-                    return pressed;
-                }
-                finally
-                {
-                    console.log("failed to get input for \"" + name + "\"");
-                    return false;
-                }
+                return inputs[name].pressed; //todo potentially put failed to find key here?
             }
             addInput("forward", keys.w);
             addInput("backward", keys.s);

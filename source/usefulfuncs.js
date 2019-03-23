@@ -287,8 +287,69 @@ function rayAABBIntersection(lb, rt, ray)
     var t4 = (rt.y - ray.from.y) * dfy;
     var t5 = (lb.z - ray.from.z) * dfz;
     var t6 = (rt.z - ray.from.z) * dfz;
-    var tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4), Math.min(t5, t6));
-    var tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4), Math.max(t5, t6));
+    var temp;
+    if(t1 > t2)
+    {
+        temp = t1;
+        t1 = t2;
+        t2 = temp;
+    }
+    if(t3 > t4)
+    {
+        temp = t3;
+        t3 = t4;
+        t4 = temp;
+    }
+    if(t5 > t6)
+    {
+        temp = t5;
+        t5 = t6;
+        t6 = temp;
+    }
+    var tmin, tmax;
+    if(t1 > t3)
+    {
+        if(t1 > t5)
+        {
+            tmin = t1;
+        }
+        else
+            tmin = t5;
+        }
+    }
+    else
+    {
+        if(t3 > t5)
+        {
+            tmin = t3;
+        }
+        else
+        {
+            tmin = t5;
+        }
+    }
+    if(t2 > t4)
+    {
+        if(t4 > t6)
+        {
+            tmax = t6;
+        }
+        else
+        {
+            tmax = t4;
+        }
+    }
+    else
+    {
+        if(t2 > t6)
+        {
+            tmax = t6;
+        }
+        else
+        {
+            tmax = t2;
+        }
+    }
     if(tmax < 0 || tmin > tmax)
     {
         //dist to intersection is tmax
