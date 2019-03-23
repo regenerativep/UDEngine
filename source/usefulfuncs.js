@@ -314,6 +314,7 @@ function rayAABBIntersection(lb, rt, ray)
             tmin = t1;
         }
         else
+        {
             tmin = t5;
         }
     }
