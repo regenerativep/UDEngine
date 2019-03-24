@@ -1,13 +1,8 @@
-var defaultSize = { x: 256, y: 256 };
 class UDEngine
 {
     constructor(width, height, length)
     {
-        if(typeof width !== "number" || typeof height !== "number")
-        {
-            width = defaultSize.x;
-            height = defaultSize.y;
-        }
+        this.maxDepth = 1000;
         this.width = width;
         this.height = height;
         this.length = length;
@@ -68,7 +63,7 @@ class UDEngine
         node.children.push(this.createNode(node.x + sze.x, node.y + sze.y, node.z + sze.z, sze, nextDepth));
         if(node.atom != null)
         {
-            var side = inWhichSide(node, depth, node.atom.position);
+            var side = inWhichSide(node, this.depthList[nextDepth], node.atom.position);
             node.children[side].atom = node.atom;
             node.atom = null;
         }
@@ -79,6 +74,12 @@ class UDEngine
     }
     addItem(node, item, depth) //warning: infinite loop if item's position == any other item's position
     {
+        if(depth > this.maxDepth)
+        {
+            console.log("asdasfaasdasdsa");
+            debugger;
+            return;
+        }
         if(typeof depth !== "number")
         {
             depth = 0;
@@ -97,7 +98,11 @@ class UDEngine
             if(currentNode.children == null)
             {
                 var depthSize = this.depthList[depth];
-                if((currentNode.atom != null && currentNode.atom != item) || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
+                if(item.equals(currentNode.atom))
+                {
+                    return; //we failed to add the item
+                }
+                if(currentNode.atom != null || depthSize.x > this.maxLeafSize || depthSize.y > this.maxLeafSize || depthSize.z > this.maxLeafSize)
                 {
                     this.split(currentNode, depth);
                 }
@@ -108,7 +113,7 @@ class UDEngine
             }
             if(currentNode.children != null)
             {
-                var side = inWhichSide(currentNode, this.depthList[depth], item.position);
+                var side = inWhichSide(currentNode, this.depthList[depth + 1], item.position);
                 currentNode = currentNode.children[side];
                 depth++;
             }
@@ -143,7 +148,7 @@ class UDEngine
             head = head.next;
             if(currentNode.children != null)
             {
-                var order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth], ray.from)];
+                var order = rayCheckOrders[inWhichSide(currentNode, this.depthList[currentNode.depth + 1], ray.from)];
                 for(var j = order.length - 1; j >= 0; j--)
                 {
                     var child = currentNode.children[order[j]];
@@ -221,15 +226,15 @@ function getUsableColor(color)
 function inWhichSide(pos, size, loc) //todo: division can be optimized
 {
     var side = 0;
-    if(loc.x > pos.x + (size.x / 2))
+    if(loc.x > pos.x + size.x)
     {
         side |= 1;
     }
-    if(loc.y > pos.y + (size.y / 2))
+    if(loc.y > pos.y + size.y)
     {
         side |= 2;
     }
-    if(loc.z > pos.z + (size.z / 2))
+    if(loc.z > pos.z + size.z)
     {
         side |= 4;
     }

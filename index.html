@@ -149,9 +149,9 @@
                 var pointCount = 5000;
                 for(var i = 0; i < pointCount; i++)
                 {
-                    console.log((i + 1) + " / " + pointCount);
                     var color = new UDColor(randInt(0, 360), randInt(0, 256), randInt(0, 256));
                     var x = randInt(0, worldWidth), y = randInt(0, worldHeight), z = randInt(0, worldLength);
+                    console.log((i + 1) + " / " + pointCount + ". (x: " + x + ", y: " + y + ", z: " + z + ")");
                     var atom = new UDAtom(eng, x, y, z, color);
                     eng.addItem(atom);
                 }
@@ -185,6 +185,7 @@
             }
             canvas {
                 margin: 10px;
+                margin-top: 256px;
                 outline-style: solid;
                 outline-color: black;
                 outline-width: 1px;

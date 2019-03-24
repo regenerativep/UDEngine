@@ -82,7 +82,56 @@ function hue2rgb(p, q, t) {
     if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
     return p;
 }
-
+function averageOfColors(colorList) //this uh, might be very slow for calculating this, but this is what we have for now
+{
+    var hueX = 0, hueY = 0, sat = 0, lit = 0;
+    for(var i = 0; i < colorList.length; i++)
+    {
+        var col = colorList[i];
+        var hueAngle = (col.hue * 2 * Math.PI) / 360; //radians
+        hueX += Math.cos(hueAngle);
+        hueY += Math.sin(hueAngle);
+        sat += col.saturation;
+        lit += col.lightness;
+    }
+    var hueAngle = Math.atan2(hueY, hueX); //radians
+    var hue = (hueAngle * 360) / (2 * Math.PI);
+    sat /= colorList.length;
+    lit /= colorList.length;
+    return new UDColor(hue, sat, lit);
+}
+function weightedAverageOfColors(colorList, weights)
+{
+    var hueX = 0, hueY = 0, sat = 0, lit = 0;
+    for(var i = 0; i < colorList.length; i++)
+    {
+        var col = colorList[i];
+        var hueAngle = (col.hue * 2 * Math.PI) / 360; //radians
+        var weight = weights[i];
+        hueX += Math.cos(hueAngle) * weight;
+        hueY += Math.sin(hueAngle) * weight;
+        sat += col.saturation * weight;
+        lit += col.lightness * weight;
+    }
+    var hueAngle = Math.atan2(hueY, hueX); //radians
+    var hue = (hueAngle * 360) / (2 * Math.PI);
+    var weightSum = 0;
+    for(var i in weights)
+    {
+        weightSum += weights[i];
+    }
+    sat /= weightSum;
+    lit /= weightSum;
+    return new UDColor(hue, sat, lit);
+}
+function colorEquals(a, b)
+{
+    if(typeof a === "undefined" || typeof b === "undefined")
+    {
+        return false;
+    }
+    return a.hue == b.hue && a.saturation == b.saturation && a.lightness == b.lightness;
+}
  //https://jsperf.com/hsl-to-rgb
 function gg_hsl2rgb(hsl) {
     var h = hsl[0] / 360,
@@ -109,48 +158,6 @@ function gg_hsl2rgb(hsl) {
      else return [v, min, v - vsf];
     }
    }
-   
-
-//http://jsfiddle.net/justin_c_rounds/Gd2S2/light/
-//find out if two lines intersect, and if they do, where
-function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
-    // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
-    var denominator, a, b, numerator1, numerator2, result = {
-        x: null,
-        y: null,
-        onLine1: false,
-        onLine2: false
-    };
-    denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
-    if (denominator == 0) {
-        return result;
-    }
-    a = line1StartY - line2StartY;
-    b = line1StartX - line2StartX;
-    numerator1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b);
-    numerator2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b);
-    a = numerator1 / denominator;
-    b = numerator2 / denominator;
-
-    // if we cast these lines infinitely in both directions, they intersect here:
-    result.x = line1StartX + (a * (line1EndX - line1StartX));
-    result.y = line1StartY + (a * (line1EndY - line1StartY));
-/*
-        // it is worth noting that this should be the same as:
-        x = line2StartX + (b * (line2EndX - line2StartX));
-        y = line2StartX + (b * (line2EndY - line2StartY));
-        */
-    // if line1 is a segment and line2 is infinite, they intersect if:
-    if (a > 0 && a < 1) {
-        result.onLine1 = true;
-    }
-    // if line2 is a segment and line1 is infinite, they intersect if:
-    if (b > 0 && b < 1) {
-        result.onLine2 = true;
-    }
-    // if line1 and line2 are segments, they intersect if both of the above are true
-    return result;
-}
 //https://stackoverflow.com/questions/491738/how-do-you-calculate-the-average-of-a-set-of-circular-data
 function averageOfAngles(angleList)
 {
@@ -170,110 +177,6 @@ function averageOfAngles(angleList)
 function pointInRectangle(p, ra, rb)
 {
     return p.x > ra.x && p.x < rb.x && p.y > ra.y && p.y < rb.y;
-}
-function lineIntersectsRectangle(la, lb, ra, rb, extra)
-{
-    if(typeof extra === "undefined")
-    {
-        extra = false;
-    }
-    if(!extra)
-    {
-        if(pointInRectangle(la, ra, rb) || pointInRectangle(la, ra, rb))
-        {
-            return true;
-        }
-    }
-    var lines = [
-        { //top
-            a: ra,
-            b: {
-                x: rb.x,
-                y: ra.y
-            }
-        },
-        { //bottom
-            a: {
-                x: ra.x,
-                y: rb.y
-            },
-            b: rb
-        },
-        { //left
-            a: ra,
-            b: {
-                x: ra.x,
-                y: rb.y
-            }
-        },
-        { //right
-            a: {
-                x: rb.x,
-                y: ra.y
-            },
-            b: {
-                x: rb.x,
-                y: rb.y
-            }
-        }
-    ];
-    var final = false;
-    var closest = { x: null, y: null, dist: null };
-    var farthest = { x: null, y: null, dist: null };
-    function getDistSqr(a, b)
-    {
-        return Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2);
-    }
-    for(var i = 0; i < lines.length; i++)
-    {
-        var line = lines[i];
-        var result = checkLineIntersection(line.a.x, line.a.y, line.b.x, line.b.y, la.x, la.y, lb.x, lb.y);
-        if(result.onLine1 && result.onLine2)
-        {
-            //we have collision
-            final = true;
-            if(!extra)
-            {
-                break;
-            }
-            else
-            {
-                var tempDist = getDistSqr(la, result);
-                if(closest.dist == null || closest.dist > tempDist)
-                {
-                    closest.dist = tempDist;
-                }
-                if(farthest.dist == null || farthest.dist < tempDist)
-                {
-                    farthest.dist = tempDist;
-                }
-            }
-        }
-    }
-    if(extra)
-    {
-        return {
-            intersects: final,
-            close: closest,
-            far: farthest
-        };
-    }
-    return final;
-}
-function p(x, y, z) //makes things a little bit quicker to type in console and such
-{
-    if(typeof z !== "number")
-    {
-        return {
-            x: x,
-            y: y
-        };
-    }
-    return {
-        x: x,
-        y: y,
-        z: z
-    };
 }
 //https://gamedev.stackexchange.com/a/18459
 function rayAABBIntersection(lb, rt, ray)
@@ -358,35 +261,6 @@ function rayAABBIntersection(lb, rt, ray)
     }
     //dist to intersection is tmin
     return true;
-}
-function rayRectIntersection(lb, rt, ray)
-{
-    var df = {
-        x: 1 / ray.unit.x,
-        y: 1 / ray.unit.y
-    };
-    var t1 = (lb.x - ray.from.x) * df.x;
-    var t2 = (rt.x - ray.from.x) * df.x;
-    var t3 = (lb.y - ray.from.y) * df.y;
-    var t4 = (rt.y - ray.from.y) * df.y;
-    var tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4));
-    var tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4));
-    if(tmax < 0 || tmin > tmax)
-    {
-        //dist to intersection is tmax
-        return false;
-    }
-    //dist to intersection is tmin
-    return true;
-}
-function lengthdir(dir, pit, magnitude)
-{
-    var cpit = Math.cos(pit);
-    return {
-        x: Math.cos(dir) * cpit,
-        y: Math.sin(dir) * cpit,
-        z: Math.sin(pit)
-    };
 }
 function getRotationVector(theta)
 {

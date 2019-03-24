@@ -31,4 +31,9 @@ class UDAtom
         }
         return color;
     }
+    equals(other)
+    {
+        if(typeof other === "undefined" || other == null) return false;
+        return other.position.x == this.position.x && other.position.y == this.position.y && other.position.z == this.position.z;
+    }
 }
