@@ -20,7 +20,7 @@ class UDColor
     }
     getRgb()
     {
-        var rgbCol = gg_hsl2rgb(this.hue, this.saturation / 256, this.lightness / 256);
+        var rgbCol = gg_hsl2rgb(this.hue / 360, this.saturation / 256, this.lightness / 256);
         return {
             r: Math.floor(rgbCol[0] * 255),
             g: Math.floor(rgbCol[1] * 255),
@@ -36,4 +36,23 @@ class UDColor
     {
         return "hsl(" + this.hue + "," + (this.saturation / 2.56) + "%," + (this.lightness / 2.56) + "%)";
     }
+}
+function getHexColor(color)
+{
+    if(color.constructor.name === "UDColor")
+    {
+        return color.getHex();
+    }
+    return color;
+}
+function getUsableColor(color)
+{
+    if(typeof color !== "undefined" && color != null)
+    {
+        if(color.constructor.name === "UDColor")
+        {
+            return color.getHsl();
+        }
+    }
+    return color;
 }

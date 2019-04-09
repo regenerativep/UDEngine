@@ -13,6 +13,32 @@
                 x: 128,
                 y: 128
             };
+            function rect(ctx, x1, y1, x2, y2, outlineColor, fillColor)
+            {
+                x1 = Math.floor(x1);
+                y1 = Math.floor(y1);
+                x2 = Math.floor(x2);
+                y2 = Math.floor(y2);
+                ctx.beginPath();
+                ctx.fillStyle = getUsableColor(fillColor);
+                ctx.rect(x1, y1, (x2 - x1), (y2 - y1));
+                ctx.fill();
+            }
+            function line(ctx, x1, y1, x2, y2, color)
+            {
+                var lastStroke = ctx.strokeStyle;
+                x1 = Math.floor(x1);
+                y1 = Math.floor(y1);
+                x2 = Math.floor(x2);
+                y2 = Math.floor(y2);
+                var col = getUsableColor(color);
+                ctx.beginPath();
+                ctx.strokeStyle = col;
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                ctx.strokeStyle = lastStroke;
+            }
             function randInt(from, to)
             {
                 return Math.floor(Math.random() * (to - from)) + from;
@@ -106,6 +132,7 @@
             window.addEventListener("load", function() {
                 eng = new UDEngine(worldWidth, worldHeight, worldLength);
                 camera = new UDCamera(eng, document.getElementById("container"));
+                camera.filters.push(Filter.BasicLighting);
                 function setCameraOnClick()
                 {
                     var x = parseInt(document.getElementById("xval").value);
@@ -146,6 +173,35 @@
                 });
                 startMainLoop();
                 
+                function generateSphere(radius, circumference, xpos, ypos, zpos)
+                {
+                    let angleDiff = Math.PI / circumference;
+                    let color = new UDColor(randInt(0, 360), randInt(0, 256), randInt(0, 256));
+                    for(let i = 0; i < circumference; i++)
+                    {
+                        let sin = Math.sin(angleDiff * i);
+                        let numPoints = Math.ceil(sin * circumference);
+                        let z = zpos + (Math.cos(angleDiff * i) * radius);
+                        console.log(z);
+                        let horizAngleDiff = Math.PI * 2 / numPoints;
+                        for(let j = 0; j < numPoints; j++)
+                        {
+                            let x = xpos + (Math.cos(j * horizAngleDiff) * radius * sin);
+                            let y = ypos + (Math.sin(j * horizAngleDiff) * radius * sin);
+                            let atom = new UDAtom(eng, x, y, z, color);
+                            eng.addItem(atom);
+                        }
+                    }
+                }
+                //generateSphere(8, 240, worldWidth / 2, worldHeight / 2, worldLength / 2);
+                let numSpheres = 4;
+                for(let i = 0; i < numSpheres; i++)
+                {
+                    var x = randInt(0, worldWidth), y = randInt(0, worldHeight), z = randInt(0, worldLength);
+                    generateSphere(8, 16, x, y, z);
+                    console.log("sphere " + (i + 1) + " / " + numSpheres);
+                }
+                /*
                 var pointCount = 5000;
                 for(var i = 0; i < pointCount; i++)
                 {
@@ -154,7 +210,7 @@
                     console.log((i + 1) + " / " + pointCount + ". (x: " + x + ", y: " + y + ", z: " + z + ")");
                     var atom = new UDAtom(eng, x, y, z, color);
                     eng.addItem(atom);
-                }
+                }*/
                 /*
                 function generateCircle(count, radius, xoff, yoff)
                 {

@@ -133,6 +133,7 @@ function colorEquals(a, b)
     return a.hue == b.hue && a.saturation == b.saturation && a.lightness == b.lightness;
 }
  //https://jsperf.com/hsl-to-rgb
+ /*
 function gg_hsl2rgb(h, s, l) {
     //hue is 0-359
     var v, min, vsf;
@@ -171,7 +172,29 @@ function gg_hsl2rgb(h, s, l) {
         }
         return [min, v, min + vsf]; //sextant === 2
     }
-}
+}*/
+function gg_hsl2rgb(h, s, l) {
+    var v, min, sv, sextant, fract, vsf;
+   
+    if (l <= 0.5) v = l * (1 + s);
+    else v = l + s - l * s;
+   
+    if (v === 0) return [0, 0, 0];
+    else {
+     min = 2 * l - v;
+     sv = (v - min) / v;
+     h = 6 * h;
+     sextant = Math.floor(h);
+     fract = h - sextant;
+     vsf = v * sv * fract;
+     if (sextant === 0 || sextant === 6) return [v, min + vsf, min];
+     else if (sextant === 1) return [v - vsf, v, min];
+     else if (sextant === 2) return [min, v, min + vsf];
+     else if (sextant === 3) return [min, v - vsf, v];
+     else if (sextant === 4) return [min + vsf, min, v];
+     else return [v, min, v - vsf];
+    }
+   }
 //https://stackoverflow.com/questions/491738/how-do-you-calculate-the-average-of-a-set-of-circular-data
 function averageOfAngles(angleList)
 {

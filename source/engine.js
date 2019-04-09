@@ -176,53 +176,6 @@ class UDEngine
         return new UDColor(0, 0, 0); //todo skybox?
     }
 }
-
-function rect(ctx, x1, y1, x2, y2, outlineColor, fillColor)
-{
-    x1 = Math.floor(x1);
-    y1 = Math.floor(y1);
-    x2 = Math.floor(x2);
-    y2 = Math.floor(y2);
-    ctx.beginPath();
-    ctx.fillStyle = getUsableColor(fillColor);
-    ctx.rect(x1, y1, (x2 - x1), (y2 - y1));
-    ctx.fill();
-}
-function line(ctx, x1, y1, x2, y2, color)
-{
-    var lastStroke = ctx.strokeStyle;
-    x1 = Math.floor(x1);
-    y1 = Math.floor(y1);
-    x2 = Math.floor(x2);
-    y2 = Math.floor(y2);
-    var col = getUsableColor(color);
-    ctx.beginPath();
-    ctx.strokeStyle = col;
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    ctx.strokeStyle = lastStroke;
-}
-
-function getHexColor(color)
-{
-    if(color.constructor.name === "UDColor")
-    {
-        return color.getHex();
-    }
-    return color;
-}
-function getUsableColor(color)
-{
-    if(typeof color !== "undefined" && color != null)
-    {
-        if(color.constructor.name === "UDColor")
-        {
-            return color.getHsl();
-        }
-    }
-    return color;
-}
 function inWhichSide(pos, size, loc) //todo: division can be optimized
 {
     var side = 0;

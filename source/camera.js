@@ -18,6 +18,7 @@ class UDCamera
         this.lastHeight = 0;
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
+        this.filters = [];
     }
     fixDirections()
     {
@@ -60,6 +61,10 @@ class UDCamera
             else
             {
                 color = atom.color;
+                for(var i = 0; i < this.filters.length; i++)
+                {
+                    color = this.filters[i].pass(ray, color, atom);
+                }
             }
             var rgb = color.getRgb(true);
             this.imageData.data[ind++] = rgb.r;

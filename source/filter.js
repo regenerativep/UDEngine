@@ -1,13 +1,4 @@
 var Filter = {
-    SolidColor: {
-        create: function(atom, color) {
-            atom.color = color;
-            return this;
-        },
-        pass: function(ray, color, atom) {
-            return atom.color;
-        }
-    },
     Transparent: {
         create: function(atom, opacity) {
             atom.opacity = opacity; //todo actually use this
@@ -27,32 +18,27 @@ var Filter = {
             }
             else
             {
-                targetColor = targetAtom.getColor(ray);
+                targetColor = targetAtom.color;
             }
             //return weightedAverageOfColors([ color, targetColor ], [ opacity, 1 - opacity ]);
             return targetColor;
         }
     },
-    TestRedirect: {
-        create: function(atom) {
-            return this;
-        },
-        pass: function(ray, color, atom) {
-            
-        }
-    },
     BasicLighting: {
-        create: function(atom) {
-            return this;
-        },
         pass: function(ray, color, atom) {
             var distX = (atom.position.x - ray.from.x) ** 2;
             var distY = (atom.position.y - ray.from.y) ** 2;
             var distZ = (atom.position.z - ray.from.z) ** 2;
             var distSqr = Math.pow(distX + distY + distZ, 2 / 3);
-            var lightPercent = Math.min(5000 / distSqr, 1);
+            var lightPercent = Math.min(128 / distSqr, 1);
+            if(asdadadasdasdsad%10000 == 0)
+            {
+                console.log(lightPercent);
+            }
+            asdadadasdasdsad++;
             var newCol = new UDColor(color.hue, color.saturation, color.lightness * lightPercent);
             return newCol;
         }
     }
 };
+var asdadadasdasdsad = 0;
