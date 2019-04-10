@@ -19,6 +19,7 @@ class UDCamera
         this.canvas = document.createElement("canvas");
         canvasContainer.appendChild(this.canvas);
         this.filters = [];
+        this.viewDistance = 256; //todo make this actually do something
     }
     fixDirections()
     {
@@ -51,7 +52,7 @@ class UDCamera
         while(this.cameraPattern.active)
         {
             var rowVec = this.cameraPattern.getNext();
-            var ray = new UDRay(this.position, rowVec, this.engine);
+            var ray = new UDRay(this.position, rowVec, this.viewDistance, this.engine);
             var atom = this.engine.fireRayCast(ray, this.engine.topNode);
             var color;
             if(atom == null)
